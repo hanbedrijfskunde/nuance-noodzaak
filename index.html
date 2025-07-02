@@ -1,520 +1,707 @@
 <!DOCTYPE html>
 <html lang="nl">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nuance Noodzaak</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --color-bg: #f9f9f9;
-            --color-tile: #ffffff;
-            --color-tile-border: #d3d3d3;
-            --color-text: #1a1a1a;
-            --color-selected: #5a5a5a;
-            --color-selected-text: #ffffff;
-            
-            --difficulty-1: #f9df6d; /* Geel */
-            --difficulty-2: #a0c35a; /* Groen */
-            --difficulty-3: #639ee2; /* Blauw */
-            --difficulty-4: #b580d1; /* Paars */
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Nuance Noodzaak</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--color-bg: #f9f9f9;
+				--color-tile: #ffffff;
+				--color-tile-border: #d3d3d3;
+				--color-text: #1a1a1a;
+				--color-selected: #5a5a5a;
+				--color-selected-text: #ffffff;
 
-            --font-family: 'Roboto', sans-serif;
-            --border-radius: 8px;
-            --transition-speed: 0.2s;
-        }
+				--difficulty-1: #f9df6d; /* Geel */
+				--difficulty-2: #a0c35a; /* Groen */
+				--difficulty-3: #639ee2; /* Blauw */
+				--difficulty-4: #b580d1; /* Paars */
 
-        body {
-            font-family: var(--font-family);
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 20px;
-            min-height: 100vh;
-            margin: 0;
-            user-select: none;
-        }
+				--font-family: "Roboto", sans-serif;
+				--border-radius: 8px;
+				--transition-speed: 0.2s;
+			}
 
-        #game-wrapper {
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-        }
+			body {
+				font-family: var(--font-family);
+				background-color: var(--color-bg);
+				color: var(--color-text);
+				display: flex;
+				justify-content: center;
+				align-items: flex-start;
+				padding: 20px;
+				min-height: 100vh;
+				margin: 0;
+				user-select: none;
+			}
 
-        h1 {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-        
-        #instructions {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-        }
+			#game-wrapper {
+				max-width: 600px;
+				width: 100%;
+				text-align: center;
+			}
 
-        #solved-groups-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-            min-height: 10px; 
-        }
+			h1 {
+				font-size: 2rem;
+				font-weight: 700;
+			}
 
-        .solved-group {
-            background-color: var(--difficulty-1);
-            border-radius: var(--border-radius);
-            padding: 16px;
-            text-align: center;
-            opacity: 0;
-            transform: scale(0.95);
-            animation: fadeInScale 0.4s forwards;
-            color: var(--color-text);
-        }
-        
-        @keyframes fadeInScale {
-            to { opacity: 1; transform: scale(1); }
-        }
+			#instructions {
+				font-size: 1.1rem;
+				margin-bottom: 20px;
+			}
 
-        .solved-group .category {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
-        
-        /* NIEUW: Styling voor de uitleg in de oplossingskaart */
-        .solved-group .explanation {
-            font-weight: 400;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            text-align: left;
-        }
-        .solved-group .explanation strong {
-            font-weight: 700;
-        }
+			#solved-groups-container {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				margin-bottom: 20px;
+				min-height: 10px;
+			}
 
+			.solved-group {
+				background-color: var(--difficulty-1);
+				border-radius: var(--border-radius);
+				padding: 16px;
+				text-align: center;
+				opacity: 0;
+				transform: scale(0.95);
+				animation: fadeInScale 0.4s forwards;
+				color: var(--color-text);
+			}
 
-        .solved-group[data-difficulty='1'] { background-color: var(--difficulty-1); }
-        .solved-group[data-difficulty='2'] { background-color: var(--difficulty-2); }
-        .solved-group[data-difficulty='3'] { background-color: var(--difficulty-3); }
-        .solved-group[data-difficulty='4'] { background-color: var(--difficulty-4); }
+			@keyframes fadeInScale {
+				to {
+					opacity: 1;
+					transform: scale(1);
+				}
+			}
 
-        #tiles-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-            position: relative;
-        }
+			.solved-group .category {
+				font-weight: 700;
+				font-size: 1.1rem;
+				margin-bottom: 8px;
+			}
 
-        .tile {
-            background-color: var(--color-tile);
-            border: 1px solid var(--color-tile-border);
-            border-radius: var(--border-radius);
-            min-height: 90px;
-            display: flex;
-            flex-direction: column; /* Stapel de tekstelementen */
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding: 8px;
-            cursor: pointer;
-            transition: background-color var(--transition-speed), color var(--transition-speed), transform 0.1s;
-            line-height: 1.3;
-        }
-        
-        /* NIEUW: Styling voor de verschillende tekstelementen in een tegel */
-        .tile-main {
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-        }
-        .tile-sub {
-            font-size: 0.85rem;
-            font-weight: 400;
-            text-transform: none;
-            margin-top: -2px;
-        }
+			.solved-group .explanation {
+				font-weight: 400;
+				font-size: 0.95rem;
+				line-height: 1.4;
+				text-align: left;
+			}
+			.solved-group .explanation strong {
+				font-weight: 700;
+			}
 
-        .tile:active { transform: scale(0.96); }
+			.solved-group[data-difficulty="1"] {
+				background-color: var(--difficulty-1);
+			}
+			.solved-group[data-difficulty="2"] {
+				background-color: var(--difficulty-2);
+			}
+			.solved-group[data-difficulty="3"] {
+				background-color: var(--difficulty-3);
+			}
+			.solved-group[data-difficulty="4"] {
+				background-color: var(--difficulty-4);
+			}
 
-        .tile.selected {
-            background-color: var(--color-selected);
-            color: var(--color-selected-text);
-            border-color: var(--color-selected);
-        }
-        
-        .tile.shake { animation: shake 0.5s ease-in-out; }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-        
-        .tile.disappearing {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
+			#tiles-grid {
+				display: grid;
+				grid-template-columns: repeat(4, 1fr);
+				gap: 10px;
+				margin-bottom: 20px;
+				position: relative;
+			}
 
-        #game-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+			.tile {
+				background-color: var(--color-tile);
+				border: 1px solid var(--color-tile-border);
+				border-radius: var(--border-radius);
+				min-height: 90px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				text-align: center;
+				font-size: 0.9rem;
+				font-weight: 500;
+				padding: 8px;
+				cursor: pointer;
+				transition: background-color var(--transition-speed),
+					color var(--transition-speed), transform 0.1s,
+					border-color var(--transition-speed);
+				line-height: 1.3;
+			}
 
-        #mistakes-container {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        #mistakes-container span { font-weight: 500; }
+			.tile-main {
+				font-weight: 700;
+				font-size: 1rem;
+				text-transform: uppercase;
+			}
+			.tile-sub {
+				font-size: 0.85rem;
+				font-weight: 400;
+				text-transform: none;
+				margin-top: -2px;
+			}
 
-        .mistake-dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background-color: var(--color-tile-border);
-        }
-        
-        .mistake-dot.filled { background-color: var(--color-selected); }
+			.tile:active {
+				transform: scale(0.96);
+			}
 
-        .button {
-            background-color: var(--color-tile);
-            border: 1px solid var(--color-tile-border);
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-family: var(--font-family);
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color var(--transition-speed);
-        }
-        
-        .button:hover:not(:disabled) { background-color: #e9e9e9; }
-        .button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        #final-message {
-            margin-top: 20px;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-    </style>
-</head>
-<body>
+			/* --- AANGEPASTE CSS --- */
+			/* Eerst de hint-stijlen. Dit is de 'basis' als een tegel een hint is. */
+			.tile.hint-1 {
+				background-color: var(--difficulty-1);
+				border-color: var(--difficulty-1);
+			}
+			.tile.hint-2 {
+				background-color: var(--difficulty-2);
+				border-color: var(--difficulty-2);
+			}
+			.tile.hint-3 {
+				background-color: var(--difficulty-3);
+				border-color: var(--difficulty-3);
+			}
+			.tile.hint-4 {
+				background-color: var(--difficulty-4);
+				border-color: var(--difficulty-4);
+			}
 
-    <div id="game-wrapper">
-        <h1>Nuance Noodzaak</h1>
-        <p id="instructions">Vind de 4 groepen. Elke groep bestaat uit twee termen en hun twee bijbehorende definities.</p>
+			/* Daarna de 'selected' stijl. Deze overschrijft de hint-kleur wanneer een tegel geselecteerd is. */
+			.tile.selected {
+				background-color: var(--color-selected);
+				color: var(--color-selected-text);
+				border-color: var(--color-selected);
+			}
+			/* --- EINDE AANPASSING --- */
 
-        <div id="solved-groups-container"></div>
-        <div id="tiles-grid"></div>
-        
-        <div id="final-message" style="display: none;"></div>
-        <button id="play-again-btn" class="button" style="display: none; margin-top: 10px;">Speel Opnieuw</button>
+			.tile.shake {
+				animation: shake 0.5s ease-in-out;
+			}
 
-        <div id="game-footer">
-            <div id="mistakes-container">
-                <span>Fouten:</span>
-            </div>
-            <div id="action-buttons">
-                <button id="shuffle-btn" class="button">Husselen</button>
-                <button id="submit-btn" class="button" disabled>Controleer</button>
-            </div>
-        </div>
-    </div>
+			@keyframes shake {
+				0%,
+				100% {
+					transform: translateX(0);
+				}
+				10%,
+				30%,
+				50%,
+				70%,
+				90% {
+					transform: translateX(-5px);
+				}
+				20%,
+				40%,
+				60%,
+				80% {
+					transform: translateX(5px);
+				}
+			}
 
-    <script>
-    const allGameData = [
-        { 
-            category: "AARD VAN EEN PROBLEEM", 
-            difficulty: 3,
-            explanation: "Een <strong>complex</strong> probleem heeft onvoorspelbare, meerzijdige oorzaak-gevolgrelaties en feedbackloops. Een <strong>ingewikkeld</strong> probleem is gedetailleerd, maar heeft voorspelbare, lineaire oorzaak-gevolgrelaties en een eenduidige oplossing.",
-            tiles: [
-                "<span class='tile-main'>COMPLEX</span><span class='tile-sub'>probleem</span>",
-                "<span class='tile-main'>INGEWIKKELD</span><span class='tile-sub'>probleem</span>",
-                "Heeft onvoorspelbare, meerzijdige oorzaken en feedbackloops.", 
-                "Is gedetailleerd, maar heeft voorspelbare, lineaire oorzaken."
-            ]
-        },
-        { 
-            category: "TOEKOMSTVISIE",
-            difficulty: 4,
-            explanation: "<strong>Scenario’s</strong> zijn samenhangende beelden van mogelijke toekomsten, inclusief context en implicaties. <strong>Opties</strong> of keuzes zijn vaak discrete, geïsoleerde mogelijkheden zonder die diepte van context.",
-            tiles: [
-                "<span class='tile-main'>SCENARIO'S</span>",
-                "<span class='tile-main'>OPTIES</span><span class='tile-sub'>/ Keuzes</span>",
-                "Samenhangende beelden van mogelijke toekomsten, inclusief context.",
-                "Discrete, geïsoleerde mogelijkheden zonder diepe context."
-            ]
-        },
-        { 
-            category: "BETROKKENHEID BIJ VERANDERING",
-            difficulty: 2,
-            explanation: "<strong>Draagvlak</strong> gaat verder dan passieve acceptatie; het impliceert actieve betrokkenheid, commitment en een gedeeld gevoel van eigenaarschap bij de verandering.",
-            tiles: [
-                "<span class='tile-main'>DRAAGVLAK</span>",
-                "<span class='tile-main'>ACCEPTATIE</span><span class='tile-sub'>/ Instemming</span>",
-                "Impliceert actieve betrokkenheid en gedeeld eigenaarschap.",
-                "Is vaak een passieve of lijdzame houding."
-            ]
-        },
-        { 
-            category: "EVALUATIE",
-            difficulty: 2,
-            explanation: "<strong>Meten</strong> is het verzamelen van data en feiten. <strong>Beoordelen</strong> omvat het interpreteren van die metingen in het licht van doelen en context, en het trekken van conclusies over de waarde of effectiviteit.",
-            tiles: [
-                "<span class='tile-main'>BEOORDELEN</span>",
-                "<span class='tile-main'>METEN</span><span class='tile-sub'>/ Vaststellen</span>",
-                "Is data interpreteren om conclusies te trekken over waarde.",
-                "Is het verzamelen van (kwantitatieve) data en feiten."
-            ]
-        },
-        { 
-            category: "HOUDING",
-            difficulty: 1,
-            explanation: "Een <strong>kritische</strong> houding is constructief en gericht op het analyseren en verbeteren van ideeën. Een <strong>cynische</strong> houding is vaak destructief, gericht op afwijzing zonder intentie tot verbetering.",
-            tiles: [
-                "<span class='tile-main'>KRITISCHE</span><span class='tile-sub'>houding</span>",
-                "<span class='tile-main'>CYNISCHE</span><span class='tile-sub'>houding</span>",
-                "Is constructief, gericht op analyseren en verbeteren.",
-                "Is destructief, gericht op afwijzing zonder verbetering."
-            ]
-        },
-        { 
-            category: "INFORMATIE-UITWISSELING",
-            difficulty: 1,
-            explanation: "<strong>Informatieoverdracht</strong> is eenrichtingsverkeer (zenden). <strong>Communicatie</strong> is tweerichtingsverkeer, een proces van betekenisgeving en wederzijds begrip.",
-            tiles: [
-                "<span class='tile-main'>COMMUNICATIE</span>",
-                "<span class='tile-main'>INFORMATIEOVERDRACHT</span>",
-                "Is tweerichtingsverkeer, gericht op wederzijds begrip.",
-                "Is eenrichtingsverkeer, het zenden van feiten."
-            ]
-        },
-        { 
-            category: "NETWERKEN",
-            difficulty: 3,
-            explanation: "<strong>Oppervlakkige contacten</strong> zijn vaak transactioneel en gericht op korte termijn. <strong>Waardevolle relaties</strong> impliceren diepgang, wederzijds vertrouwen en een langetermijnfocus.",
-            tiles: [
-                "<span class='tile-main'>WAARDEVOLLE RELATIES</span>",
-                "<span class='tile-main'>OPPERVLAKKIGE CONTACTEN</span>",
-                "Impliceren diepgang, vertrouwen en een langetermijnfocus.",
-                "Zijn vaak transactioneel en gericht op korte termijn."
-            ]
-        },
-        { 
-            category: "KENNISMANAGEMENT",
-            difficulty: 4,
-            explanation: "Het <strong>delen of opslaan</strong> van kennis is een momentopname. Het <strong>borgen</strong> van kennis betekent dat de kennis duurzaam wordt geïntegreerd in processen, systemen en de cultuur van de organisatie.",
-            tiles: [
-                "<span class='tile-main'>KENNIS BORGEN</span>",
-                "<span class='tile-main'>KENNIS DELEN</span><span class='tile-sub'>/ opslaan</span>",
-                "Kennis duurzaam integreren in processen en cultuur.",
-                "Een passieve handeling of een momentopname."
-            ]
-        },
-        { 
-            category: "GEDRAGSFUNDAMENT",
-            difficulty: 2,
-            explanation: "<strong>Regels en procedures</strong> zijn expliciete, geschreven voorschriften. <strong>Waarden en normen</strong> zijn dieperliggende, vaak impliciete principes die gedrag sturen en de basis vormen voor ethische besluitvorming.",
-            tiles: [
-                "<span class='tile-main'>WAARDEN EN NORMEN</span>",
-                "<span class='tile-main'>REGELS EN PROCEDURES</span>",
-                "Dieperliggende, impliciete overtuigingen die gedrag sturen.",
-                "Expliciete, geschreven voorschriften die je moet volgen."
-            ]
-        }
-    ];
+			.tile.disappearing {
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.3s;
+			}
 
-    const MAX_GROUPS_PER_GAME = 4;
-    const MAX_MISTAKES = 4;
+			#game-footer {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
 
-    let selectedTiles = [];
-    let mistakes = 0;
-    let solvedGroupsCount = 0;
-    let currentGameGroups = [];
+			#action-buttons {
+				display: flex;
+				gap: 10px;
+			}
 
-    const tilesGrid = document.getElementById('tiles-grid');
-    const submitBtn = document.getElementById('submit-btn');
-    const shuffleBtn = document.getElementById('shuffle-btn');
-    const mistakesContainer = document.getElementById('mistakes-container');
-    const solvedContainer = document.getElementById('solved-groups-container');
-    const finalMessageEl = document.getElementById('final-message');
-    const playAgainBtn = document.getElementById('play-again-btn');
+			#mistakes-container {
+				display: flex;
+				gap: 8px;
+				align-items: center;
+			}
 
-    function initGame() {
-        selectedTiles = [];
-        mistakes = 0;
-        solvedGroupsCount = 0;
+			#mistakes-container span {
+				font-weight: 500;
+			}
 
-        tilesGrid.innerHTML = '';
-        solvedContainer.innerHTML = '';
-        finalMessageEl.style.display = 'none';
-        playAgainBtn.style.display = 'none';
-        document.getElementById('game-footer').style.display = 'flex';
+			.mistake-dot {
+				width: 15px;
+				height: 15px;
+				border-radius: 50%;
+				background-color: var(--color-tile-border);
+			}
 
-        const shuffledData = [...allGameData].sort(() => 0.5 - Math.random());
-        currentGameGroups = shuffledData.slice(0, MAX_GROUPS_PER_GAME);
+			.mistake-dot.filled {
+				background-color: var(--color-selected);
+			}
 
-        const allTilesForGame = currentGameGroups.flatMap((group, index) => 
-            group.tiles.map(tileHtml => ({
-                html: tileHtml,
-                groupId: `g${index}`
-            }))
-        );
-        shuffleArray(allTilesForGame);
+			.button {
+				background-color: var(--color-tile);
+				border: 1px solid var(--color-tile-border);
+				border-radius: 20px;
+				padding: 10px 20px;
+				font-family: var(--font-family);
+				font-size: 1rem;
+				font-weight: 500;
+				cursor: pointer;
+				transition: background-color var(--transition-speed),
+					opacity var(--transition-speed);
+			}
 
-        allTilesForGame.forEach(tileData => {
-            const tileEl = document.createElement('div');
-            tileEl.classList.add('tile');
-            tileEl.innerHTML = tileData.html;
-            tileEl.dataset.groupId = tileData.groupId;
-            tileEl.addEventListener('click', () => onTileClick(tileEl));
-            tilesGrid.appendChild(tileEl);
-        });
-        
-        updateMistakesDisplay();
-        updateSubmitButton();
-    }
+			.button:hover:not(:disabled) {
+				background-color: #e9e9e9;
+			}
+			.button:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
 
-    function onTileClick(tileEl) {
-        if (selectedTiles.includes(tileEl)) {
-            tileEl.classList.remove('selected');
-            selectedTiles = selectedTiles.filter(t => t !== tileEl);
-        } else {
-            if (selectedTiles.length < 4) {
-                tileEl.classList.add('selected');
-                selectedTiles.push(tileEl);
-            }
-        }
-        updateSubmitButton();
-    }
-    
-    function updateSubmitButton() {
-        submitBtn.disabled = selectedTiles.length !== 4;
-    }
+			#final-message {
+				margin-top: 20px;
+				font-size: 1.5rem;
+				font-weight: 700;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="game-wrapper">
+			<h1>Nuance Noodzaak</h1>
+			<p id="instructions">
+				Vind de 4 groepen. Elke groep bestaat uit twee termen en hun twee
+				bijbehorende definities.
+			</p>
 
-    function handleSubmit() {
-        if (selectedTiles.length !== 4) return;
+			<div id="solved-groups-container"></div>
+			<div id="tiles-grid"></div>
 
-        const firstGroupId = selectedTiles[0].dataset.groupId;
-        const isCorrect = selectedTiles.every(t => t.dataset.groupId === firstGroupId);
+			<div id="final-message" style="display: none"></div>
+			<button
+				id="play-again-btn"
+				class="button"
+				style="display: none; margin-top: 10px"
+			>
+				Speel Opnieuw
+			</button>
 
-        if (isCorrect) {
-            handleCorrectGroup(firstGroupId);
-        } else {
-            handleIncorrectGroup();
-        }
-    }
-    
-    function handleCorrectGroup(groupId) {
-        const groupIndex = parseInt(groupId.substring(1));
-        const groupData = currentGameGroups[groupIndex];
-        solvedGroupsCount++;
-        
-        const solvedGroupEl = document.createElement('div');
-        solvedGroupEl.classList.add('solved-group');
-        solvedGroupEl.dataset.difficulty = groupData.difficulty;
-        
-        // NIEUW: Toon de categorie en de volledige uitleg
-        solvedGroupEl.innerHTML = `
+			<div id="game-footer">
+				<div id="mistakes-container">
+					<span>Fouten:</span>
+				</div>
+				<div id="action-buttons">
+					<button id="hint-btn" class="button">Hint</button>
+					<button id="shuffle-btn" class="button">Husselen</button>
+					<button id="submit-btn" class="button" disabled>Controleer</button>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const allGameData = [
+				{
+					category: "AARD VAN EEN PROBLEEM",
+					difficulty: 3,
+					explanation:
+						"Een <strong>complex</strong> probleem heeft onvoorspelbare, meerzijdige oorzaak-gevolgrelaties en feedbackloops. Een <strong>ingewikkeld</strong> probleem is gedetailleerd, maar heeft voorspelbare, lineaire oorzaak-gevolgrelaties en een eenduidige oplossing.",
+					tiles: [
+						"<span class='tile-main'>COMPLEX</span><span class='tile-sub'>probleem</span>",
+						"<span class='tile-main'>INGEWIKKELD</span><span class='tile-sub'>probleem</span>",
+						"Heeft onvoorspelbare, meerzijdige oorzaken en feedbackloops.",
+						"Is gedetailleerd, maar heeft voorspelbare, lineaire oorzaken.",
+					],
+				},
+				{
+					category: "TOEKOMSTVISIE",
+					difficulty: 4,
+					explanation:
+						"<strong>Scenario’s</strong> zijn samenhangende beelden van mogelijke toekomsten, inclusief context en implicaties. <strong>Opties</strong> of keuzes zijn vaak discrete, geïsoleerde mogelijkheden zonder die diepte van context.",
+					tiles: [
+						"<span class='tile-main'>SCENARIO'S</span>",
+						"<span class='tile-main'>OPTIES</span><span class='tile-sub'>/ Keuzes</span>",
+						"Samenhangende beelden van mogelijke toekomsten, inclusief context.",
+						"Discrete, geïsoleerde mogelijkheden zonder diepe context.",
+					],
+				},
+				{
+					category: "BETROKKENHEID BIJ VERANDERING",
+					difficulty: 2,
+					explanation:
+						"<strong>Draagvlak</strong> gaat verder dan passieve acceptatie; het impliceert actieve betrokkenheid, commitment en een gedeeld gevoel van eigenaarschap bij de verandering.",
+					tiles: [
+						"<span class='tile-main'>DRAAGVLAK</span>",
+						"<span class='tile-main'>ACCEPTATIE</span><span class='tile-sub'>/ Instemming</span>",
+						"Impliceert actieve betrokkenheid en gedeeld eigenaarschap.",
+						"Is vaak een passieve of lijdzame houding.",
+					],
+				},
+				{
+					category: "EVALUATIE",
+					difficulty: 2,
+					explanation:
+						"<strong>Meten</strong> is het verzamelen van data en feiten. <strong>Beoordelen</strong> omvat het interpreteren van die metingen in het licht van doelen en context, en het trekken van conclusies over de waarde of effectiviteit.",
+					tiles: [
+						"<span class='tile-main'>BEOORDELEN</span>",
+						"<span class='tile-main'>METEN</span><span class='tile-sub'>/ Vaststellen</span>",
+						"Is data interpreteren om conclusies te trekken over waarde.",
+						"Is het verzamelen van (kwantitatieve) data en feiten.",
+					],
+				},
+				{
+					category: "HOUDING",
+					difficulty: 1,
+					explanation:
+						"Een <strong>kritische</strong> houding is constructief en gericht op het analyseren en verbeteren van ideeën. Een <strong>cynische</strong> houding is vaak destructief, gericht op afwijzing zonder intentie tot verbetering.",
+					tiles: [
+						"<span class='tile-main'>KRITISCHE</span><span class='tile-sub'>houding</span>",
+						"<span class='tile-main'>CYNISCHE</span><span class='tile-sub'>houding</span>",
+						"Is constructief, gericht op analyseren en verbeteren.",
+						"Is destructief, gericht op afwijzing zonder verbetering.",
+					],
+				},
+				{
+					category: "INFORMATIE-UITWISSELING",
+					difficulty: 1,
+					explanation:
+						"<strong>Informatieoverdracht</strong> is eenrichtingsverkeer (zenden). <strong>Communicatie</strong> is tweerichtingsverkeer, een proces van betekenisgeving en wederzijds begrip.",
+					tiles: [
+						"<span class='tile-main'>COMMUNICATIE</span>",
+						"<span class='tile-main'>INFORMATIEOVERDRACHT</span>",
+						"Is tweerichtingsverkeer, gericht op wederzijds begrip.",
+						"Is eenrichtingsverkeer, het zenden van feiten.",
+					],
+				},
+				{
+					category: "NETWERKEN",
+					difficulty: 3,
+					explanation:
+						"<strong>Oppervlakkige contacten</strong> zijn vaak transactioneel en gericht op korte termijn. <strong>Waardevolle relaties</strong> impliceren diepgang, wederzijds vertrouwen en een langetermijnfocus.",
+					tiles: [
+						"<span class='tile-main'>WAARDEVOLLE RELATIES</span>",
+						"<span class='tile-main'>OPPERVLAKKIGE CONTACTEN</span>",
+						"Impliceren diepgang, vertrouwen en een langetermijnfocus.",
+						"Zijn vaak transactioneel en gericht op korte termijn.",
+					],
+				},
+				{
+					category: "KENNISMANAGEMENT",
+					difficulty: 4,
+					explanation:
+						"Het <strong>delen of opslaan</strong> van kennis is een momentopname. Het <strong>borgen</strong> van kennis betekent dat de kennis duurzaam wordt geïntegreerd in processen, systemen en de cultuur van de organisatie.",
+					tiles: [
+						"<span class='tile-main'>KENNIS BORGEN</span>",
+						"<span class='tile-main'>KENNIS DELEN</span><span class='tile-sub'>/ opslaan</span>",
+						"Kennis duurzaam integreren in processen en cultuur.",
+						"Een passieve handeling of een momentopname.",
+					],
+				},
+				{
+					category: "GEDRAGSFUNDAMENT",
+					difficulty: 2,
+					explanation:
+						"<strong>Regels en procedures</strong> zijn expliciete, geschreven voorschriften. <strong>Waarden en normen</strong> zijn dieperliggende, vaak impliciete principes die gedrag sturen en de basis vormen voor ethische besluitvorming.",
+					tiles: [
+						"<span class='tile-main'>WAARDEN EN NORMEN</span>",
+						"<span class='tile-main'>REGELS EN PROCEDURES</span>",
+						"Dieperliggende, impliciete overtuigingen die gedrag sturen.",
+						"Expliciete, geschreven voorschriften die je moet volgen.",
+					],
+				},
+			];
+
+			const MAX_GROUPS_PER_GAME = 4;
+			const MAX_MISTAKES = 4;
+
+			let selectedTiles = [];
+			let mistakes = 0;
+			let solvedGroupsCount = 0;
+			let currentGameGroups = [];
+
+			const tilesGrid = document.getElementById("tiles-grid");
+			const submitBtn = document.getElementById("submit-btn");
+			const shuffleBtn = document.getElementById("shuffle-btn");
+			const hintBtn = document.getElementById("hint-btn");
+			const mistakesContainer = document.getElementById("mistakes-container");
+			const solvedContainer = document.getElementById(
+				"solved-groups-container"
+			);
+			const finalMessageEl = document.getElementById("final-message");
+			const playAgainBtn = document.getElementById("play-again-btn");
+
+			function initGame() {
+				selectedTiles = [];
+				mistakes = 0;
+				solvedGroupsCount = 0;
+
+				tilesGrid.innerHTML = "";
+				solvedContainer.innerHTML = "";
+				finalMessageEl.style.display = "none";
+				playAgainBtn.style.display = "none";
+				document.getElementById("game-footer").style.display = "flex";
+
+				const shuffledData = [...allGameData].sort(() => 0.5 - Math.random());
+				currentGameGroups = shuffledData.slice(0, MAX_GROUPS_PER_GAME);
+
+				const allTilesForGame = currentGameGroups.flatMap((group, index) =>
+					group.tiles.map((tileHtml) => ({
+						html: tileHtml,
+						groupId: `g${index}`,
+					}))
+				);
+				shuffleArray(allTilesForGame);
+
+				allTilesForGame.forEach((tileData) => {
+					const tileEl = document.createElement("div");
+					tileEl.classList.add("tile");
+					tileEl.innerHTML = tileData.html;
+					tileEl.dataset.groupId = tileData.groupId;
+					tileEl.addEventListener("click", () => onTileClick(tileEl));
+					tilesGrid.appendChild(tileEl);
+				});
+
+				updateMistakesDisplay();
+				updateSubmitButton();
+				updateHintButton();
+			}
+
+			function onTileClick(tileEl) {
+				// Prevent clicking if the tile is already disappearing
+				if (tileEl.classList.contains("disappearing")) return;
+
+				if (selectedTiles.includes(tileEl)) {
+					tileEl.classList.remove("selected");
+					selectedTiles = selectedTiles.filter((t) => t !== tileEl);
+				} else {
+					if (selectedTiles.length < 4) {
+						tileEl.classList.add("selected");
+						selectedTiles.push(tileEl);
+					}
+				}
+				updateSubmitButton();
+			}
+
+			function updateSubmitButton() {
+				submitBtn.disabled = selectedTiles.length !== 4;
+			}
+
+			function updateHintButton() {
+				const remainingHintableGroups = currentGameGroups.filter((group) => {
+					// Find if this group is already solved
+					const solvedCategories = Array.from(
+						solvedContainer.querySelectorAll(".category")
+					).map((el) => el.textContent);
+					if (solvedCategories.includes(group.category)) {
+						return false;
+					}
+					// Find if this group has already been hinted
+					const groupIndex = currentGameGroups.indexOf(group);
+					const hintUsed = tilesGrid.querySelector(
+						`.tile.hint-used[data-group-id="g${groupIndex}"]`
+					);
+					return !hintUsed;
+				});
+
+				hintBtn.disabled =
+					mistakes >= MAX_MISTAKES - 1 || remainingHintableGroups.length === 0;
+			}
+
+			function handleSubmit() {
+				if (selectedTiles.length !== 4) return;
+
+				const firstGroupId = selectedTiles[0].dataset.groupId;
+				const isCorrect = selectedTiles.every(
+					(t) => t.dataset.groupId === firstGroupId
+				);
+
+				if (isCorrect) {
+					handleCorrectGroup(firstGroupId);
+				} else {
+					handleIncorrectGroup();
+				}
+			}
+
+			function handleCorrectGroup(groupId) {
+				const groupIndex = parseInt(groupId.substring(1));
+				const groupData = currentGameGroups[groupIndex];
+				solvedGroupsCount++;
+
+				const solvedGroupEl = document.createElement("div");
+				solvedGroupEl.classList.add("solved-group");
+				solvedGroupEl.dataset.difficulty = groupData.difficulty;
+
+				solvedGroupEl.innerHTML = `
             <div class="category">${groupData.category}</div>
             <div class="explanation">${groupData.explanation}</div>
         `;
-        
-        selectedTiles.forEach(tile => tile.classList.add('disappearing'));
-        
-        solvedContainer.appendChild(solvedGroupEl);
-        const sortedSolved = Array.from(solvedContainer.children).sort((a,b) => a.dataset.difficulty - b.dataset.difficulty);
-        sortedSolved.forEach(el => solvedContainer.appendChild(el));
-        
-        selectedTiles = [];
-        updateSubmitButton();
 
-        if (solvedGroupsCount === MAX_GROUPS_PER_GAME) {
-            endGame(true);
-        }
-    }
+				// Make selected tiles disappear
+				selectedTiles.forEach((tile) => tile.classList.add("disappearing"));
 
-    function handleIncorrectGroup() {
-        mistakes++;
-        updateMistakesDisplay();
-        
-        selectedTiles.forEach(tile => {
-            tile.classList.add('shake');
-            tile.addEventListener('animationend', () => tile.classList.remove('shake'), { once: true });
-        });
-        
-        if (mistakes >= MAX_MISTAKES) {
-            endGame(false);
-        }
-    }
-    
-    function shuffleTiles() {
-        const remainingTiles = Array.from(tilesGrid.children).filter(t => !t.classList.contains('disappearing'));
-        shuffleArray(remainingTiles);
-        remainingTiles.forEach(tile => tilesGrid.appendChild(tile));
-    }
+				// Add solved group to container and re-sort
+				solvedContainer.appendChild(solvedGroupEl);
+				const sortedSolved = Array.from(solvedContainer.children).sort(
+					(a, b) => a.dataset.difficulty - b.dataset.difficulty
+				);
+				sortedSolved.forEach((el) => solvedContainer.appendChild(el));
 
-    function updateMistakesDisplay() {
-        mistakesContainer.innerHTML = '<span>Fouten:</span>';
-        for (let i = 0; i < MAX_MISTAKES; i++) {
-            const dot = document.createElement('div');
-            dot.classList.add('mistake-dot');
-            if (i < mistakes) {
-                dot.classList.add('filled');
-            }
-            mistakesContainer.appendChild(dot);
-        }
-    }
-    
-    function endGame(isWin) {
-        document.getElementById('game-footer').style.display = 'none';
-        finalMessageEl.style.display = 'block';
-        playAgainBtn.style.display = 'inline-block';
-        
-        if (isWin) {
-            finalMessageEl.textContent = "Fantastisch! Alles correct!";
-        } else {
-            finalMessageEl.textContent = "Helaas, geen pogingen meer.";
-            const solvedCategories = Array.from(solvedContainer.querySelectorAll('.category')).map(el => el.textContent);
-            
-            currentGameGroups.forEach(group => {
-                if (!solvedCategories.includes(group.category)) {
-                    const solvedGroupEl = document.createElement('div');
-                    solvedGroupEl.classList.add('solved-group');
-                    solvedGroupEl.dataset.difficulty = group.difficulty;
-                    solvedGroupEl.innerHTML = `<div class="category">${group.category}</div><div class="explanation">${group.explanation}</div>`;
-                    solvedContainer.appendChild(solvedGroupEl);
-                }
-            });
-             const sortedSolved = Array.from(solvedContainer.children).sort((a,b) => a.dataset.difficulty - b.dataset.difficulty);
-             sortedSolved.forEach(el => solvedContainer.appendChild(el));
-        }
-    }
-    
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
-    
-    submitBtn.addEventListener('click', handleSubmit);
-    shuffleBtn.addEventListener('click', shuffleTiles);
-    playAgainBtn.addEventListener('click', initGame);
-    
-    initGame();
-    </script>
-</body>
+				// Reset selection
+				selectedTiles = [];
+				updateSubmitButton();
+				updateHintButton();
+
+				if (solvedGroupsCount === MAX_GROUPS_PER_GAME) {
+					endGame(true);
+				}
+			}
+
+			function handleIncorrectGroup() {
+				mistakes++;
+				updateMistakesDisplay();
+				updateHintButton();
+
+				selectedTiles.forEach((tile) => {
+					tile.classList.add("shake");
+					tile.addEventListener(
+						"animationend",
+						() => tile.classList.remove("shake"),
+						{ once: true }
+					);
+				});
+
+				if (mistakes >= MAX_MISTAKES) {
+					endGame(false);
+				}
+			}
+
+			function shuffleTiles() {
+				const remainingTiles = Array.from(tilesGrid.children).filter(
+					(t) => !t.classList.contains("disappearing")
+				);
+				shuffleArray(remainingTiles);
+				remainingTiles.forEach((tile) => tilesGrid.appendChild(tile));
+			}
+
+			function giveHint() {
+				// 1. Find all groups that are not yet solved and not yet hinted
+				const unsolvedGroupIds = currentGameGroups
+					.map((group, index) => `g${index}`)
+					.filter(
+						(groupId) =>
+							!tilesGrid.querySelector(
+								`.tile.disappearing[data-group-id="${groupId}"]`
+							)
+					)
+					.filter(
+						(groupId) =>
+							!tilesGrid.querySelector(
+								`.tile.hint-used[data-group-id="${groupId}"]`
+							)
+					);
+
+				if (unsolvedGroupIds.length === 0) return;
+
+				// 2. Pick one of these groups at random
+				const targetGroupId =
+					unsolvedGroupIds[Math.floor(Math.random() * unsolvedGroupIds.length)];
+				const termTilesInGroup = Array.from(
+					tilesGrid.querySelectorAll(`.tile[data-group-id="${targetGroupId}"]`)
+				).filter((tile) => tile.querySelector(".tile-main"));
+
+				if (termTilesInGroup.length < 2) return; // Should not happen in a valid group
+
+				// 3. Get group data for the color
+				const groupIndex = parseInt(targetGroupId.substring(1));
+				const groupData = currentGameGroups[groupIndex];
+				const difficulty = groupData.difficulty;
+
+				// 4. Clear current selection
+				selectedTiles.forEach((t) => t.classList.remove("selected"));
+				selectedTiles = [];
+
+				// 5. Apply hint styles and mark as used
+				termTilesInGroup.forEach((tile) => {
+					tile.classList.add(`hint-${difficulty}`, "hint-used");
+					// Automatically select the hinted tiles
+					tile.classList.add("selected");
+					selectedTiles.push(tile);
+				});
+
+				updateSubmitButton();
+
+				// 6. Apply mistake penalty
+				mistakes++;
+				updateMistakesDisplay();
+				updateHintButton();
+
+				if (mistakes >= MAX_MISTAKES) {
+					endGame(false);
+				}
+			}
+
+			function updateMistakesDisplay() {
+				mistakesContainer.innerHTML = "<span>Fouten:</span>";
+				for (let i = 0; i < MAX_MISTAKES; i++) {
+					const dot = document.createElement("div");
+					dot.classList.add("mistake-dot");
+					if (i < mistakes) {
+						dot.classList.add("filled");
+					}
+					mistakesContainer.appendChild(dot);
+				}
+			}
+
+			function endGame(isWin) {
+				hintBtn.disabled = true;
+				document.getElementById("game-footer").style.display = "none";
+				finalMessageEl.style.display = "block";
+				playAgainBtn.style.display = "inline-block";
+
+				if (isWin) {
+					finalMessageEl.textContent = "Fantastisch! Alles correct!";
+				} else {
+					finalMessageEl.textContent = "Helaas, geen pogingen meer.";
+					const solvedCategories = Array.from(
+						solvedContainer.querySelectorAll(".category")
+					).map((el) => el.textContent);
+
+					currentGameGroups.forEach((group) => {
+						if (!solvedCategories.includes(group.category)) {
+							const solvedGroupEl = document.createElement("div");
+							solvedGroupEl.classList.add("solved-group");
+							solvedGroupEl.dataset.difficulty = group.difficulty;
+							solvedGroupEl.innerHTML = `<div class="category">${group.category}</div><div class="explanation">${group.explanation}</div>`;
+							solvedContainer.appendChild(solvedGroupEl);
+						}
+					});
+					const sortedSolved = Array.from(solvedContainer.children).sort(
+						(a, b) => a.dataset.difficulty - b.dataset.difficulty
+					);
+					sortedSolved.forEach((el) => solvedContainer.appendChild(el));
+				}
+			}
+
+			function shuffleArray(array) {
+				for (let i = array.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[array[i], array[j]] = [array[j], array[i]];
+				}
+			}
+
+			submitBtn.addEventListener("click", handleSubmit);
+			shuffleBtn.addEventListener("click", shuffleTiles);
+			hintBtn.addEventListener("click", giveHint);
+			playAgainBtn.addEventListener("click", initGame);
+
+			initGame();
+		</script>
+	</body>
 </html>
