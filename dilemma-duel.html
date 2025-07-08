@@ -1,383 +1,1138 @@
 <!DOCTYPE html>
 <html lang="nl">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dilemma Duel: Reflectie op Begeleiding</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- jsPDF library for PDF generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        :root {
-            --color-bg: #f9f9f9;
-            --color-tile: #ffffff;
-            --color-tile-border: #d3d3d3;
-            --color-text: #1a1a1a;
-            --color-best-practice: #a0c35a;
-            --color-selected: #639ee2;
-            --font-family: 'Roboto', sans-serif;
-            --border-radius: 8px;
-            --transition-speed: 0.2s;
-        }
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Dilemma Duel: Reflectie op Begeleiding</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+			rel="stylesheet"
+		/>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+		<style>
+			:root {
+				--color-bg: #fcfdff;
+				--color-surface: #ffffff;
+				--color-border: #e2e8f0;
+				--color-text-primary: #1e293b;
+				--color-text-secondary: #475569;
+				--color-accent-selected: #38bdf8; /* Crystal Blue */
+				--color-accent-best: #a3e635; /* Lime Green */
+				--font-family: "Inter", sans-serif;
+				--border-radius-lg: 16px;
+				--border-radius-md: 12px;
+				--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+				--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+					0 2px 4px -2px rgb(0 0 0 / 0.1);
+			}
 
-        body {
-            font-family: var(--font-family);
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 20px;
-            min-height: 100vh;
-            margin: 0;
-        }
+			body {
+				font-family: var(--font-family);
+				background-color: var(--color-bg);
+				color: var(--color-text-primary);
+				display: flex;
+				justify-content: center;
+				align-items: flex-start;
+				padding: 2.5rem 1.5rem;
+				min-height: 100vh;
+				margin: 0;
+			}
 
-        #game-wrapper {
-            max-width: 700px;
-            width: 100%;
-            text-align: center;
-        }
+			#game-wrapper {
+				max-width: 700px;
+				width: 100%;
+				text-align: center;
+			}
 
-        h1 { font-size: 2rem; font-weight: 700; }
-        #instructions {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+			h1 {
+				font-size: 2.5rem;
+				font-weight: 700;
+				color: var(--color-text-primary);
+				margin-bottom: 0.75rem;
+			}
 
-        #game-area, #final-reflection-screen { text-align: left; }
+			#instructions {
+				font-size: 1.1rem;
+				margin-bottom: 2.5rem;
+				max-width: 600px;
+				margin-left: auto;
+				margin-right: auto;
+				color: var(--color-text-secondary);
+				line-height: 1.6;
+			}
 
-        .dilemma-card {
-            background-color: var(--color-tile);
-            border: 1px solid var(--color-tile-border);
-            border-radius: var(--border-radius);
-            padding: 20px 25px;
-            margin-bottom: 25px;
-        }
+			#game-area,
+			#final-reflection-screen,
+			#end-screen {
+				text-align: left;
+			}
 
-        .dilemma-card .category {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: #3f51b5;
-            margin-bottom: 10px;
-        }
+			.dilemma-card {
+				background-color: var(--color-surface);
+				border: 1px solid var(--color-border);
+				border-radius: var(--border-radius-lg);
+				padding: 2rem;
+				margin-bottom: 2rem;
+				box-shadow: var(--shadow-sm);
+			}
 
-        .dilemma-card .scenario { font-style: italic; margin-bottom: 15px; line-height: 1.5; }
-        .dilemma-card .question { font-weight: 500; line-height: 1.4; }
-        
-        #options-container { display: grid; grid-template-columns: 1fr; gap: 12px; }
-        
-        .option {
-            background-color: var(--color-tile);
-            border: 2px solid var(--color-tile-border);
-            border-radius: var(--border-radius);
-            padding: 15px;
-            cursor: pointer;
-            transition: border-color var(--transition-speed);
-            line-height: 1.4;
-            font-weight: 500;
-        }
-        
-        .option:not(.disabled):hover { border-color: #5a5a5a; }
-        
-        .option.selected { border-color: var(--color-selected); }
-        .option.best-practice { background-color: #e8f5e9; }
-        .option.disabled { pointer-events: none; }
+			.dilemma-card .category {
+				font-weight: 700;
+				font-size: 1.25rem;
+				color: var(--color-text-primary);
+				margin-bottom: 1rem;
+			}
 
-        #feedback-container {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            line-height: 1.5;
-            background-color: #f0f4f8;
-            border-left: 5px solid var(--color-selected);
-            display: none;
-        }
+			.dilemma-card .scenario {
+				font-style: italic;
+				margin-bottom: 1.5rem;
+				line-height: 1.6;
+				color: var(--color-text-secondary);
+			}
+			.dilemma-card .question {
+				font-weight: 500;
+				line-height: 1.5;
+				font-size: 1.1rem;
+			}
 
-        #suggestion-container, #final-reflection-container {
-            margin-top: 20px;
-            display: none;
-        }
-        #suggestion-container label, #final-reflection-container label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        #user-suggestion-input, #final-reflection-input {
-            width: 100%;
-            min-height: 80px;
-            border: 1px solid var(--color-tile-border);
-            border-radius: var(--border-radius);
-            padding: 10px;
-            font-family: var(--font-family);
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        #final-reflection-input { min-height: 120px; }
-        
-        #navigation { margin-top: 25px; text-align: center; }
-        #end-game-buttons { display: flex; justify-content: center; gap: 15px; }
+			#options-container {
+				display: grid;
+				grid-template-columns: 1fr;
+				gap: 0.75rem;
+			}
 
-        .button {
-            background-color: var(--color-tile);
-            border: 1px solid var(--color-tile-border);
-            border-radius: 20px;
-            padding: 12px 25px;
-            font-family: var(--font-family);
-            font-size: 1.1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color var(--transition-speed);
-        }
-        
-        .button:hover { background-color: #e9e9e9; }
-        #progress-counter { font-weight: 500; margin-bottom: 15px; }
-    </style>
-</head>
-<body>
+			.option {
+				background-color: var(--color-surface);
+				border: 2px solid var(--color-border);
+				border-radius: var(--border-radius-md);
+				padding: 1rem 1.25rem;
+				cursor: pointer;
+				transition: all 0.2s ease-in-out;
+				line-height: 1.5;
+				font-weight: 500;
+				text-align: left;
+			}
 
-    <div id="game-wrapper">
-        <h1>Dilemma Duel</h1>
-        <p id="instructions">Kies voor elk dilemma de meest effectieve begeleidingsaanpak en reflecteer op je keuze. Jouw inzichten kun je aan het einde opslaan.</p>
+			.option:not(.disabled):hover {
+				border-color: var(--color-accent-selected);
+				transform: translateY(-2px);
+				box-shadow: var(--shadow-md);
+			}
 
-        <div id="start-screen">
-            <button id="start-btn" class="button">Start de Reflectie</button>
-        </div>
+			.option.selected {
+				border-color: var(--color-accent-selected);
+				box-shadow: 0 0 0 3px
+					color-mix(in srgb, var(--color-accent-selected) 20%, transparent);
+			}
 
-        <div id="game-area" style="display: none;">
-            <div id="progress-counter"></div>
-            <div id="dilemma-card-container"></div>
-            <div id="options-container"></div>
-            <div id="feedback-container"></div>
-            <div id="suggestion-container">
-                <label for="user-suggestion-input">Welke andere aanpak of vraag zou jij hier nog voorstellen?</label>
-                <textarea id="user-suggestion-input" placeholder="Typ hier je eigen gedachten..."></textarea>
-            </div>
-            <div id="navigation">
-                <button id="next-btn" class="button" style="display: none;">Volgende</button>
-            </div>
-        </div>
-        
-        <div id="final-reflection-screen" style="display: none;">
-             <div class="dilemma-card">
-                <div class="category">Eigen Praktijkcasus</div>
-                <p class="question">Beschrijf een concrete situatie die je zelf hebt meegemaakt (of van hebt gehoord) waarin de nuances van een sleutelbegrip een rol speelden. Hoe ben je hiermee omgegaan, of hoe zou je hiermee omgaan?</p>
-            </div>
-            <div id="final-reflection-container">
-                 <textarea id="final-reflection-input" placeholder="Beschrijf hier de casus en jouw reflectie..."></textarea>
-            </div>
-             <div id="navigation">
-                <button id="complete-btn" class="button">Reflectie Voltooien</button>
-            </div>
-        </div>
-        
-        <div id="end-screen" style="display: none;">
-             <div class="dilemma-card">
-                 <div class="category">Reflectie Compleet!</div>
-                <p class="question">Je hebt alle stappen doorlopen. Sla je volledige reflectie—inclusief je eigen praktijkcasus—nu op als PDF voor persoonlijk gebruik, of speel opnieuw om andere keuzes te verkennen.</p>
-            </div>
-            <div id="navigation">
-                <div id="end-game-buttons">
-                    <button id="save-pdf-btn" class="button">Sla op als PDF</button>
-                    <button id="replay-btn" class="button">Opnieuw Spelen</button>
-                </div>
-            </div>
-        </div>
+			.option.best-practice {
+				background-color: color-mix(
+					in srgb,
+					var(--color-accent-best) 10%,
+					var(--color-surface)
+				);
+				border-color: var(--color-accent-best);
+			}
+			.option.disabled {
+				pointer-events: none;
+			}
 
-    </div>
+			#feedback-container {
+				margin-top: 1.5rem;
+				padding: 1.25rem;
+				border-radius: var(--border-radius-md);
+				line-height: 1.6;
+				background-color: color-mix(
+					in srgb,
+					var(--color-accent-selected) 8%,
+					var(--color-surface)
+				);
+				border-left: 5px solid var(--color-accent-selected);
+				display: none;
+			}
 
-    <script>
-    const { jsPDF } = window.jspdf;
+			#suggestion-container,
+			#final-reflection-container {
+				margin-top: 1.5rem;
+				display: none;
+			}
+			#suggestion-container label,
+			#final-reflection-container label {
+				display: block;
+				font-weight: 500;
+				margin-bottom: 0.5rem;
+				text-align: left;
+			}
+			#user-suggestion-input,
+			#final-reflection-input {
+				width: 100%;
+				min-height: 100px;
+				border: 1px solid var(--color-border);
+				border-radius: var(--border-radius-md);
+				padding: 0.75rem 1rem;
+				font-family: var(--font-family);
+				font-size: 1rem;
+				box-sizing: border-box;
+				background-color: var(--color-surface);
+				transition: box-shadow 0.2s;
+			}
+			#user-suggestion-input:focus,
+			#final-reflection-input:focus {
+				outline: none;
+				box-shadow: 0 0 0 3px
+					color-mix(in srgb, var(--color-accent-selected) 20%, transparent);
+				border-color: var(--color-accent-selected);
+			}
 
-    const allDilemmaData = [
-        // Kwalificatie 1: Probleem herkennen en diagnosticeren
-        { category: "Complex vs. Ingewikkeld", scenario: "Een student zegt: 'Mijn vraagstuk is héél complex, want ik moet 50 variabelen meenemen in mijn analyse.'", question: "Hoe help je de student te bepalen of het echt <strong>complex</strong> is, of 'slechts' <strong>ingewikkeld</strong>?", options: [{ id: 1, text: "Vraag de student de relaties tussen de variabelen te tekenen. Zijn er onvoorspelbare feedbackloops of menselijke factoren?", isBest: true, feedback: "Dit dwingt de student om van lineair (veel variabelen) naar systeemdenken (relaties en onvoorspelbaarheid) te gaan, de kern van het verschil." }, { id: 2, text: "Adviseer om het aantal variabelen te verminderen tot een behapbaar aantal.", isBest: false, feedback: "Dit is pragmatisch, maar omzeilt de kernvraag en leert de student niet het verschil te herkennen." }, { id: 3, text: "Laat de student alle variabelen in een groot Excel-model zetten en de correlaties berekenen.", isBest: false, feedback: "Dit behandelt het probleem als puur ingewikkeld (rekenkundig) en mist de kans om te coachen op systeemdenken." }] },
-        // ... all other 19 dilemmas from the previous step go here ...
-        { category: "Duurzame Maatschappelijke Oplossingen", scenario: "Een student presenteert een zeer winstgevend advies, dat als neveneffect een aanzienlijke milieubelasting heeft. 'Daar heeft de opdrachtgever niet om gevraagd,' zegt hij.", question: "Hoe moedig je hem aan om te denken aan <strong>duurzame en maatschappelijk verantwoorde</strong> oplossingen?", options: [{ id: 1, text: "Vraag hem om een paragraaf toe te voegen waarin hij zijn advies analyseert in het licht van de Sustainable Development Goals (SDG's) en de potentiële impact op de reputatie van het bedrijf op lange termijn.", isBest: true, feedback: "Dit geeft de student een concreet en erkend raamwerk (de SDG's) om zijn advies in een breder, maatschappelijk perspectief te plaatsen." }, { id: 2, text: "Zeg dat het advies onacceptabel is en dat hij een 'groene' oplossing moet bedenken.", isBest: false, feedback: "Dit kan voelen als een persoonlijke afwijzing en geeft de student geen handvatten HOE hij tot een meer gebalanceerd advies kan komen." }, { id: 3, text: "Stel voor om het advies te presenteren, maar de milieubelasting alleen te noemen als de directie ernaar vraagt.", isBest: false, feedback: "Dit is onethisch en ondermijnt de professionele verantwoordelijkheid van de student om een volledig en eerlijk advies te geven." }] }
-    ];
+			#final-reflection-input {
+				min-height: 140px;
+			}
 
-    let currentDilemmaIndex = 0;
-    let currentGameDilemmas = [];
-    let sessionResults = [];
-    let userFinalReflection = '';
+			#navigation {
+				margin-top: 2rem;
+				text-align: center;
+			}
+			#end-game-buttons {
+				display: flex;
+				justify-content: center;
+				gap: 1rem;
+			}
 
-    const startBtn = document.getElementById('start-btn');
-    const startScreen = document.getElementById('start-screen');
-    const gameArea = document.getElementById('game-area');
-    const progressCounter = document.getElementById('progress-counter');
-    const dilemmaCardContainer = document.getElementById('dilemma-card-container');
-    const optionsContainer = document.getElementById('options-container');
-    const feedbackContainer = document.getElementById('feedback-container');
-    const suggestionContainer = document.getElementById('suggestion-container');
-    const suggestionInput = document.getElementById('user-suggestion-input');
-    const nextBtn = document.getElementById('next-btn');
+			.button {
+				background-color: var(--color-accent-selected);
+				color: var(--color-surface);
+				border: none;
+				border-radius: var(--border-radius-md);
+				padding: 0.75rem 1.75rem;
+				font-family: var(--font-family);
+				font-size: 1.1rem;
+				font-weight: 700;
+				cursor: pointer;
+				transition: all 0.2s ease-in-out;
+				box-shadow: var(--shadow-sm);
+			}
 
-    // Nieuwe elementen
-    const finalReflectionScreen = document.getElementById('final-reflection-screen');
-    const finalReflectionContainer = document.getElementById('final-reflection-container');
-    const finalReflectionInput = document.getElementById('final-reflection-input');
-    const completeBtn = document.getElementById('complete-btn');
-    const endScreen = document.getElementById('end-screen');
-    const savePdfBtn = document.getElementById('save-pdf-btn');
-    const replayBtn = document.getElementById('replay-btn');
+			.button:hover {
+				transform: translateY(-2px);
+				box-shadow: var(--shadow-md);
+				background-color: color-mix(
+					in srgb,
+					var(--color-accent-selected) 90%,
+					#000
+				);
+			}
 
+			#start-btn {
+				padding: 1rem 2.5rem;
+				font-size: 1.2rem;
+			}
 
-    function initGame() {
-        startScreen.style.display = 'none';
-        endScreen.style.display = 'none';
-        finalReflectionScreen.style.display = 'none';
-        gameArea.style.display = 'block';
-        
-        currentDilemmaIndex = 0;
-        sessionResults = [];
-        userFinalReflection = '';
+			#save-pdf-btn {
+				background-color: var(--color-accent-best);
+				color: var(--color-text-primary);
+			}
+			#save-pdf-btn:hover {
+				background-color: color-mix(
+					in srgb,
+					var(--color-accent-best) 90%,
+					#000
+				);
+			}
 
-        const urlParams = new URLSearchParams(window.location.search);
-        let requestedCount = parseInt(urlParams.get('aantal'), 10) || 3;
-        requestedCount = Math.min(requestedCount, allDilemmaData.length);
+			#replay-btn {
+				background-color: var(--color-surface);
+				color: var(--color-text-primary);
+				border: 1px solid var(--color-border);
+			}
+			#replay-btn:hover {
+				background-color: color-mix(
+					in srgb,
+					var(--color-text-secondary) 5%,
+					transparent
+				);
+			}
 
-        const shuffledData = [...allDilemmaData].sort(() => 0.5 - Math.random());
-        currentGameDilemmas = shuffledData.slice(0, requestedCount);
-        
-        loadDilemma();
-    }
+			#progress-counter {
+				font-weight: 500;
+				margin-bottom: 1rem;
+				color: var(--color-text-secondary);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="game-wrapper">
+			<h1>Dilemma Duel</h1>
+			<p id="instructions">
+				Kies voor elk dilemma de meest effectieve begeleidingsaanpak en
+				reflecteer op je keuze. Jouw inzichten kun je aan het einde opslaan.
+			</p>
 
-    function loadDilemma() {
-        feedbackContainer.style.display = 'none';
-        suggestionContainer.style.display = 'none';
-        suggestionInput.value = '';
-        nextBtn.style.display = 'none';
+			<div id="start-screen">
+				<button id="start-btn" class="button">Start de Reflectie</button>
+			</div>
 
-        if (currentDilemmaIndex >= currentGameDilemmas.length) {
-            showFinalReflection();
-            return;
-        }
+			<div id="game-area" style="display: none">
+				<div id="progress-counter"></div>
+				<div id="dilemma-card-container"></div>
+				<div id="options-container"></div>
+				<div id="feedback-container"></div>
+				<div id="suggestion-container">
+					<label for="user-suggestion-input"
+						>Welke andere aanpak of vraag zou jij hier nog voorstellen?</label
+					>
+					<textarea
+						id="user-suggestion-input"
+						placeholder="Typ hier je eigen gedachten..."
+					></textarea>
+				</div>
+				<div id="navigation">
+					<button id="next-btn" class="button" style="display: none">
+						Volgende
+					</button>
+				</div>
+			</div>
 
-        progressCounter.textContent = `Dilemma ${currentDilemmaIndex + 1} van ${currentGameDilemmas.length}`;
-        const dilemma = currentGameDilemmas[currentDilemmaIndex];
+			<div id="final-reflection-screen" style="display: none">
+				<div class="dilemma-card">
+					<div class="category">Eigen Praktijkcasus</div>
+					<p class="question">
+						Beschrijf een concrete situatie die je zelf hebt meegemaakt (of van
+						hebt gehoord) waarin de nuances van een sleutelbegrip een rol
+						speelden. Hoe ben je hiermee omgegaan, of hoe zou je hiermee omgaan?
+					</p>
+				</div>
+				<div id="final-reflection-container">
+					<textarea
+						id="final-reflection-input"
+						placeholder="Beschrijf hier de casus en jouw reflectie..."
+					></textarea>
+				</div>
+				<div id="navigation">
+					<button id="complete-btn" class="button">Reflectie Voltooien</button>
+				</div>
+			</div>
 
-        dilemmaCardContainer.innerHTML = `<div class="dilemma-card"><div class="category">${dilemma.category}</div><p class="scenario">"${dilemma.scenario}"</p><p class="question">${dilemma.question}</p></div>`;
-        optionsContainer.innerHTML = '';
-        
-        const shuffledOptions = [...dilemma.options].sort(() => 0.5 - Math.random());
-        shuffledOptions.forEach(option => {
-            const optionEl = document.createElement('div');
-            optionEl.classList.add('option');
-            optionEl.innerHTML = option.text;
-            optionEl.addEventListener('click', () => handleOptionClick(option, optionEl));
-            optionsContainer.appendChild(optionEl);
-        });
-    }
+			<div id="end-screen" style="display: none">
+				<div class="dilemma-card">
+					<div class="category">Reflectie Compleet!</div>
+					<p class="question">
+						Je hebt alle stappen doorlopen. Sla je volledige reflectie—inclusief
+						je eigen praktijkcasus—nu op als PDF voor persoonlijk gebruik, of
+						speel opnieuw om andere keuzes te verkennen.
+					</p>
+				</div>
+				<div id="navigation">
+					<div id="end-game-buttons">
+						<button id="save-pdf-btn" class="button">Sla op als PDF</button>
+						<button id="replay-btn" class="button">Opnieuw Spelen</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    function handleOptionClick(chosenOption, chosenElement) {
-        document.querySelectorAll('.option').forEach(el => {
-            el.classList.add('disabled');
-            const originalOption = currentGameDilemmas[currentDilemmaIndex].options.find(o => o.text === el.innerHTML);
-            if(originalOption && originalOption.isBest) {
-                 el.classList.add('best-practice');
-            }
-        });
-        
-        chosenElement.classList.add('selected');
+		<script>
+			const { jsPDF } = window.jspdf;
 
-        feedbackContainer.innerHTML = `<strong>Reflectie op deze aanpak:</strong> ${chosenOption.feedback}`;
-        feedbackContainer.style.display = 'block';
-        suggestionContainer.style.display = 'block';
-        nextBtn.style.display = 'inline-block';
-    }
-    
-    function saveCurrentStep() {
-        if(currentDilemmaIndex >= currentGameDilemmas.length) return;
-        
-        const dilemma = currentGameDilemmas[currentDilemmaIndex];
-        const chosenOptionEl = document.querySelector('.option.selected');
-        const chosenOptionText = chosenOptionEl ? chosenOptionEl.innerHTML : "Geen antwoord gekozen";
-        const feedback = dilemma.options.find(o => o.text === chosenOptionText)?.feedback || "";
+			const allDilemmaData = [
+				{
+					category: "Complex vs. Ingewikkeld",
+					scenario:
+						"Een student zegt: 'Mijn vraagstuk is héél complex, want ik moet 10 variabelen meenemen in mijn analyse.'",
+					question:
+						"Hoe help je de student te bepalen of het echt <strong>complex</strong> is, of 'slechts' <strong>ingewikkeld</strong>?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag de student de relaties tussen de variabelen te tekenen. Zijn er onvoorspelbare feedbackloops of menselijke factoren?",
+							isBest: true,
+							feedback:
+								"Dit dwingt de student om van lineair (veel variabelen) naar systeemdenken (relaties en onvoorspelbaarheid) te gaan, de kern van het verschil.",
+						},
+						{
+							id: 2,
+							text: "Adviseer om het aantal variabelen te verminderen tot een behapbaar aantal.",
+							isBest: false,
+							feedback:
+								"Dit is pragmatisch, maar omzeilt de kernvraag en leert de student niet het verschil te herkennen.",
+						},
+						{
+							id: 3,
+							text: "Laat de student alle variabelen in een groot Excel-model zetten en de correlaties berekenen.",
+							isBest: false,
+							feedback:
+								"Dit behandelt het probleem als puur ingewikkeld (rekenkundig) en mist de kans om te coachen op systeemdenken.",
+						},
+					],
+				},
+				{
+					category: "Complex vs. Ingewikkeld",
+					scenario:
+						"Een student zegt: 'Ik heb een logisch stappenplan gemaakt om het probleem op te lossen. Als de opdrachtger die volg, komt het goed.'",
+					question:
+						"Hoe help je deze student inzien dat hij een <strong>complex</strong> bedrijfskundig probleem  (met meerdere dimensies) behandelt alsof het slechts <strong>ingewikkeld</strong> is (een lineaire puzzel)?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag hem te kijken naar de interacties tússen de medewerkers. Waar ontstaan onverwachte patronen? Hoe kan hij die beïnvloeden in plaats van controleren?",
+							isBest: true,
+							feedback:
+								"Dit verlegt de focus van een controleerbaar, ingewikkeld systeem naar het beïnvloeden van een onvoorspelbaar, complex systeem.",
+						},
+						{
+							id: 2,
+							text: "Zeg hem dat hij de medewerkers beter moet instrueren en de regels moet aanscherpen.",
+							isBest: false,
+							feedback:
+								"Dit is een typische reactie op een ingewikkeld probleem: meer controle. Dit werkt vaak averechts bij complexiteit.",
+						},
+						{
+							id: 3,
+							text: "Adviseer hem om zijn stappenplan te vereenvoudigen, zodat het makkelijker te volgen is.",
+							isBest: false,
+							feedback:
+								"Vereenvoudiging lost de onderliggende onvoorspelbaarheid van het complexe systeem niet op; het negeert deze juist.",
+						},
+					],
+				},
+				{
+					category: "Scenario's vs. Opties",
+					scenario:
+						"Een student presenteert zijn oplossingen: 'De organisatie kan kiezen: optie A is nieuwe software, optie B is extra mensen aannemen.'",
+					question:
+						"Hoe coach je de student om van deze losse <strong>opties</strong> naar volwaardige <strong>scenario's</strong> te komen?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag hem voor elke optie te beschrijven hoe de organisatie er over twee jaar uitziet. Wat is de impact op de cultuur, processen en klanten?",
+							isBest: true,
+							feedback:
+								"Dit dwingt de student om contextrijke, samenhangende toekomstbeelden te schetsen, wat de kern van scenariodenken is.",
+						},
+						{
+							id: 2,
+							text: "Laat hem voor beide opties een kosten-batenanalyse maken zodat de opdrachtgever makkelijker kan kiezen.",
+							isBest: false,
+							feedback:
+								"Dit is een waardevolle stap, maar het focust op het vergelijken van geïsoleerde keuzes, niet op het verkennen van mogelijke toekomsten.",
+						},
+						{
+							id: 3,
+							text: "Vraag hem om een derde optie te bedenken die elementen van A en B combineert.",
+							isBest: false,
+							feedback:
+								"Dit convergeert te snel naar één oplossing, terwijl het ontwerpproces juist gebaat is bij het divergeren en verkennen van verschillende werelden.",
+						},
+					],
+				},
+				{
+					category: "Scenario's vs. Opties",
+					scenario:
+						"Een student zegt: 'Ik heb drie mogelijke oplossingen voor het logistieke probleem. Welke moet ik nu kiezen en uitwerken voor mijn advies?'",
+					question:
+						"Hoe coach je de student om de waarde van het ontwikkelen van meerdere <strong>scenario's</strong> te zien, in plaats van direct te focussen op het kiezen van de beste <strong>optie</strong>?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag hem voor elk van de drie oplossingen een 'verhaal' te schrijven: 'Stel je voor dat we dit doen, wat betekent dat dan voor chauffeur Rachel en voor klant Onur?'.",
+							isBest: true,
+							feedback:
+								"Dit stimuleert het denken in rijke, verhalende toekomsten (scenario's) in plaats van het technisch afwegen van keuzes (opties).",
+						},
+						{
+							id: 2,
+							text: "Laat hem een Multi-Criteria Analyse (MCA) maken om objectief de beste optie te bepalen.",
+							isBest: false,
+							feedback:
+								"Hoewel een nuttige techniek, dwingt dit tot convergentie (kiezen) terwijl de fase van divergentie (verkennen van scenario's) wordt overgeslagen.",
+						},
+						{
+							id: 3,
+							text: "Zeg hem dat hij de oplossing moet kiezen die het makkelijkst te implementeren is.",
+							isBest: false,
+							feedback:
+								"Dit is een pragmatische maar beperkte beslisregel en moedigt niet aan om de volle breedte van mogelijke toekomsten te onderzoeken.",
+						},
+					],
+				},
+				{
+					category: "Draagvlak vs. Acceptatie",
+					scenario:
+						"Een student wil haar veranderplan per e-mail aankondigen. 'Als ik geen weerstand krijg, heb ik <strong>acceptatie</strong> en dus <strong>draagvlak</strong>,' redeneert ze.",
+					question:
+						"Hoe coach je haar op het creëren van écht <strong>draagvlak</strong> in plaats van het verkrijgen van passieve <strong>acceptatie</strong>?",
+					options: [
+						{
+							id: 1,
+							text: "Daag haar uit om werksessies te organiseren waarin medewerkers meedenken over de implementatie. Hoe kunnen ze het plan zélf beter maken?",
+							isBest: true,
+							feedback:
+								"Dit creëert betrokkenheid en eigenaarschap, de kern van draagvlak. Het gaat verder dan het passief accepteren van een top-down besluit.",
+						},
+						{
+							id: 2,
+							text: "Adviseer haar om na de mail een enquête te sturen om de acceptatie te meten.",
+							isBest: false,
+							feedback:
+								"Dit meet enkel een reactie achteraf en behandelt medewerkers als passieve ontvangers, in plaats van hen actief te betrekken.",
+						},
+						{
+							id: 3,
+							text: "Stel voor om eerst formele goedkeuring ('een handtekening') te halen bij alle afdelingsmanagers.",
+							isBest: false,
+							feedback:
+								"Formele instemming van het management is belangrijk, maar het is niet hetzelfde als breed gedragen, actief draagvlak op de werkvloer.",
+						},
+					],
+				},
+				{
+					category: "Draagvlak vs. Acceptatie",
+					scenario:
+						"Een student zegt: 'De manager heeft mijn advies goedgekeurd en een mail gestuurd naar het team dat ze moeten meewerken. Het draagvlak is dus geregeld.'",
+					question:
+						"Hoe maak je de student het verschil duidelijk tussen top-down mandaat (wat kan leiden tot <strong>acceptatie</strong>) en breed gedragen commitment (<strong>draagvlak</strong>)?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag: 'Wat gebeurt er als de manager volgende maand weggaat? Hoe kun je de intrinsieke motivatie van het team zelf aanboren?'",
+							isBest: true,
+							feedback:
+								"Dit dwingt de student na te denken over de duurzaamheid van de verandering en het verschil tussen 'moeten' (acceptatie) en 'willen' (draagvlak).",
+						},
+						{
+							id: 2,
+							text: "Zeg hem dat dit een goede eerste stap is en dat hij nu kan beginnen met de implementatie.",
+							isBest: false,
+							feedback:
+								"Dit bevestigt zijn misvatting dat mandaat gelijk is aan draagvlak en zet de implementatie op een wankele basis.",
+						},
+						{
+							id: 3,
+							text: "Adviseer om de manager te vragen de mail nogmaals te sturen, maar dan met een dwingendere toon.",
+							isBest: false,
+							feedback:
+								"Dit focust nog meer op macht en hiërarchie, wat hooguit tot afgedwongen acceptatie leidt, niet tot echt draagvlak.",
+						},
+					],
+				},
+				{
+					category: "Beoordelen vs. Meten",
+					scenario:
+						"Na een interventie is de klanttevredenheid gestegen van een 7,1 naar een 7,3. 'Een succes dus,' concludeert de student.",
+					question:
+						"Hoe help je de student de stap te zetten van puur <strong>meten</strong> naar het daadwerkelijk <strong>beoordelen</strong> van het resultaat?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag: 'Wat was het doel? Welke investering was nodig? Is een stijging van 0,2 de moeite waard? Wat zeggen de kwalitatieve reacties?'",
+							isBest: true,
+							feedback:
+								"Dit dwingt de student om het kale cijfer te interpreteren in het licht van doelen en context, en er zo een onderbouwd waardeoordeel aan te geven.",
+						},
+						{
+							id: 2,
+							text: "Vraag haar om de statistische significantie van de stijging te berekenen.",
+							isBest: false,
+							feedback:
+								"Dit is methodologisch correct, maar blijft binnen het domein van 'meten' en leidt niet automatisch tot een breder, bedrijfskundig oordeel.",
+						},
+						{
+							id: 3,
+							text: "Adviseer haar een mooie grafiek te maken om de stijging te visualiseren in het rapport.",
+							isBest: false,
+							feedback:
+								"Dit gaat over de presentatie van de meting, niet over de verdieping van de evaluatie en de betekenisgeving ervan.",
+						},
+					],
+				},
+				{
+					category: "Beoordelen vs. Meten",
+					scenario:
+						"Een student zegt: 'Ik heb de productiviteit gemeten. De output is met 4% gestegen en het aantal fouten met 2% gedaald. Wat moet ik hier nu over concluderen?'",
+					question:
+						"Hoe help je de student om van deze losse <strong>metingen</strong> tot een geïntegreerd <strong>oordeel</strong> over de effectiviteit te komen?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag de student: 'Wegen deze verbeteringen op tegen de gemaakte kosten en de geïnvesteerde tijd? En hoe verhoudt dit resultaat zich tot de oorspronkelijke ambitie?'",
+							isBest: true,
+							feedback:
+								"Dit stimuleert het afwegen en interpreteren van data in een bredere context om tot een waardeoordeel te komen, de essentie van 'beoordelen'.",
+						},
+						{
+							id: 2,
+							text: "Adviseer om nog meer KPI's te meten, bijvoorbeeld over het ziekteverzuim.",
+							isBest: false,
+							feedback:
+								"Meer data is niet altijd beter. Dit stelt de noodzakelijke stap van het interpreteren en beoordelen van de huidige data uit.",
+						},
+						{
+							id: 3,
+							text: "Zeg dat hij alle metingen gewoon in een overzichtelijke tabel in zijn rapport moet zetten.",
+							isBest: false,
+							feedback:
+								"Dit blijft steken in het presenteren van metingen en coacht niet op de vaardigheid om een onderbouwde conclusie (het oordeel) te trekken.",
+						},
+					],
+				},
+				{
+					category: "Kritische vs. Negatieve Houding",
+					scenario:
+						"Een student reageert op een managementmodel dat je hebt aangereikt. 'Modellen zijn allemaal theorie,' zegt hij. 'In de praktijk werkt dat toch niet.'",
+					question:
+						"Hoe stuur je de student van een <strong>negatieve</strong> afwijzing naar een <strong>kritische</strong>, onderzoekende houding?",
+					options: [
+						{
+							id: 1,
+							text: "Daag hem uit: 'Welk probleem probeert dit model op te lossen? Wat zijn de sterktes en zwaktes ervan in déze context? Hoe zou je het kunnen aanpassen zodat het beter werkt?'",
+							isBest: true,
+							feedback:
+								"Dit stimuleert een constructieve analyse gericht op begrip en verbetering, de kern van een kritische houding.",
+						},
+						{
+							id: 2,
+							text: "Wees het met hem eens dat de meeste modellen inderdaad onzin zijn en dat hij beter op zijn gevoel kan vertrouwen.",
+							isBest: false,
+							feedback:
+								"Dit bevestigt een onprofessionele en niet-onderzoekende houding en is een gemiste coachingskans.",
+						},
+						{
+							id: 3,
+							text: "Zeg dat hij het model moet gebruiken omdat de opleiding dat nu eenmaal voorschrijft.",
+							isBest: false,
+							feedback:
+								"Dit dwingt tot volgzaamheid en onderdrukt juist de ontwikkeling van een kritische, zelfstandige professional.",
+						},
+					],
+				},
+				{
+					category: "Kritische vs. Negatieve Houding",
+					scenario:
+						"Een student zegt: 'Ik heb de teamleiders geïnterviewd, maar ze geven alleen maar sociaal wenselijke antwoorden. Het is nutteloos, ze zijn gewoon onderdeel van het probleem.'",
+					question:
+						"Hoe buig je deze <strong>negatieve</strong> houding ('het is nutteloos') om naar een <strong>kritische</strong> vraag ('waarom gebeurt dit?')?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag: 'Wat maakt dat de teamleiders zich genoodzaakt voelen om sociaal wenselijke antwoorden te geven? Welk patroon in de cultuur ligt hieraan ten grondslag? Dát is een interessant resultaat.'",
+							isBest: true,
+							feedback:
+								"Dit herkadert de 'nutteloze' data als waardevolle data over een dieperliggend probleem, wat een constructieve, kritische benadering is.",
+						},
+						{
+							id: 2,
+							text: "Zeg dat hij de interviews dan maar moet negeren en op zoek moet gaan naar 'harde' data.",
+							isBest: false,
+							feedback:
+								"Dit valideert zijn negatieve afwijzing en ontmoedigt de vaardigheid om ook lastige kwalitatieve data te interpreteren.",
+						},
+						{
+							id: 3,
+							text: "Adviseer hem om de teamleiders nogmaals te interviewen, maar dan met meer confronterende vragen.",
+							isBest: false,
+							feedback:
+								"Dit kan de relatie schaden en is een agressieve in plaats van een kritisch-analytische benadering van het probleem.",
+						},
+					],
+				},
+				{
+					category: "Communicatie vs. Informatieoverdracht",
+					scenario:
+						"Na het geven van een presentatie zegt een student: 'Zo, ik heb ze geïnformeerd over mijn analyse. Mijn taak qua <strong>communicatie</strong> zit erop.'",
+					question:
+						"Hoe laat je hem reflecteren op het verschil tussen eenzijdige <strong>informatieoverdracht</strong> en tweezijdige <strong>communicatie</strong>?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag: 'En wat heb jij van hén geleerd? Welke vragen of zorgen kwamen er? Hoe weet je of hun beeld van het probleem nu hetzelfde is als het jouwe?'",
+							isBest: true,
+							feedback:
+								"Dit legt de focus op de interactie, de feedback-loop en het creëren van een gedeeld begrip, de essentie van communicatie.",
+						},
+						{
+							id: 2,
+							text: "Vraag of hij de toehoorders een e-mail heeft gestuurd met de slides als naslagwerk.",
+							isBest: false,
+							feedback:
+								"Dit versterkt het idee van communicatie als eenrichtingsverkeer: het zenden van informatie.",
+						},
+						{
+							id: 3,
+							text: "Geef hem een compliment voor het afronden van de presentatie en zeg dat hij door kan met de volgende stap.",
+							isBest: false,
+							feedback:
+								"Dit laat een cruciale kans liggen om zijn begrip van wat effectieve communicatie inhoudt, te verdiepen.",
+						},
+					],
+				},
+				{
+					category: "Communicatie vs. Informatieoverdracht",
+					scenario:
+						"Een student mailt zijn conceptadvies rond. 'Niemand reageert, dus blijkbaar is iedereen akkoord. De <strong>communicatie</strong> is geslaagd.'",
+					question:
+						"Hoe coach je de student op het inzicht dat deze vorm van <strong>informatieoverdracht</strong> niet hetzelfde is als effectieve <strong>communicatie</strong>?",
+					options: [
+						{
+							id: 1,
+							text: "Daag hem uit: 'Stilte betekent niet altijd instemming. Hoe kun je actief het gesprek aangaan om écht te achterhalen wat ze vinden en of ze de inhoud begrijpen?'",
+							isBest: true,
+							feedback:
+								"Dit focust op het feit dat communicatie een actief, tweezijdig proces van betekenisgeving is, geen passief verzenden van een document.",
+						},
+						{
+							id: 2,
+							text: "Adviseer hem een herinneringsmail te sturen met een harde deadline voor feedback.",
+							isBest: false,
+							feedback:
+								"Dit focust nog steeds op het eenzijdige proces en gebruikt druk in plaats van dialoog om een reactie te forceren.",
+						},
+						{
+							id: 3,
+							text: "Zeg hem dat hij in zijn rapport kan noteren: 'Stakeholders zijn geïnformeerd en hebben geen bezwaren geuit'.",
+							isBest: false,
+							feedback:
+								"Dit legitimeert een foute interpretatie van communicatie en kan later in het project voor grote problemen zorgen.",
+						},
+					],
+				},
+				{
+					category: "Waardevolle Relaties vs. Oppervlakkige Contacten",
+					scenario:
+						"Een student is trots: 'Ik heb goed genetwerkt. Ik heb acht personen geïnterviewd.'",
+					question:
+						"Hoe daag je haar uit om het verschil te zien tussen praten met <strong>contacten</strong> en het bouwen van <strong>waardevolle relaties</strong>?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag: 'Wie van hen zou je durven bellen als je écht met een probleem zit? Wie vertrouwt jou genoeg om eerlijke kritiek te geven?'",
+							isBest: true,
+							feedback:
+								"Dit bevraagt de diepgang, het vertrouwen en de wederkerigheid van het contact, de kenmerken van een waardevolle relatie.",
+						},
+						{
+							id: 2,
+							text: "Adviseer haar om met iedereen te 'linken' op LinkedIn om het contact te onderhouden.",
+							isBest: false,
+							feedback:
+								"Dit is een typische actie die past bij oppervlakkige, laagdrempelige contacten en zegt weinig over de waarde van de relatie.",
+						},
+						{
+							id: 3,
+							text: "Stel voor dat ze iedereen maandelijks een update stuurt over haar afstuderen om 'warm' te blijven.",
+							isBest: false,
+							feedback:
+								"Dit is eenrichtingsverkeer (zenden) en bouwt niet noodzakelijkerwijs aan een wederkerige, betekenisvolle relatie.",
+						},
+					],
+				},
+				{
+					category: "Waardevolle Relaties vs. Oppervlakkige Contacten",
+					scenario:
+						"Een student zegt: 'Om steun te krijgen voor mijn project, organiseer ik een netwerkborrel voor iedereen die ook maar iets met het onderwerp te maken heeft.'",
+					question:
+						"Hoe help je de student de focus te verleggen van het creëren van veel <strong>oppervlakkige contacten</strong> naar het bouwen van <strong>waardevolle relaties</strong>?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag haar: 'Wie zijn de 3-5 sleutelfiguren wiens steun essentieel is? Kun je niet beter met hén een-op-een een kop koffie drinken om hun specifieke belangen en zorgen te begrijpen?'",
+							isBest: true,
+							feedback:
+								"Dit stuurt aan op diepgang, focus en het opbouwen van wederzijds begrip met cruciale individuen, de kern van waardevolle relaties.",
+						},
+						{
+							id: 2,
+							text: "Geef haar tips voor een succesvolle netwerkborrel, zoals naamkaartjes en een voorstelrondje.",
+							isBest: false,
+							feedback:
+								"Dit helpt haar met de logistiek, maar coacht haar niet op de onderliggende strategische keuze tussen kwantiteit en kwaliteit van contacten.",
+						},
+						{
+							id: 3,
+							text: "Zeg dat ze moet zorgen dat ze na de borrel van iedereen een visitekaartje heeft.",
+							isBest: false,
+							feedback:
+								"Dit legt de nadruk op het verzamelen van contactgegevens, een kenmerk van oppervlakkig netwerken.",
+						},
+					],
+				},
+				{
+					category: "Kennis Borgen vs. Kennis Delen",
+					scenario:
+						"Een student heeft een handige analysetool in Excel gebouwd. Hij zegt: 'Ik zet het bestand op de gedeelde schijf en stuur iedereen een mailtje. Dan is de kennis <strong>geborgd</strong>.'",
+					question:
+						"Hoe leg je hem het verschil uit tussen <strong>kennis delen</strong> en het duurzaam <strong>borgen</strong> van kennis?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag: 'Wat gebeurt er als jij weggaat? Wie is dan eigenaar van de tool? Hoe worden nieuwe collega's getraind? Is het gebruik ervan onderdeel van een officieel proces?'",
+							isBest: true,
+							feedback:
+								"Dit dwingt hem na te denken over duurzaamheid, eigenaarschap en integratie in de organisatie, wat het verschil maakt tussen delen en borgen.",
+						},
+						{
+							id: 2,
+							text: "Zeg dat hij er een duidelijke handleiding bij moet schrijven.",
+							isBest: false,
+							feedback:
+								"Een handleiding is een prima instrument voor kennisdeling, maar het garandeert niet dat de kennis ook duurzaam wordt toegepast en onderhouden.",
+						},
+						{
+							id: 3,
+							text: "Stel voor dat hij een workshop geeft om de tool aan collega's uit te leggen.",
+							isBest: false,
+							feedback:
+								"Een workshop is een uitstekende vorm van kennisoverdracht, maar het is een eenmalig evenement en garandeert geen borging voor de lange termijn.",
+						},
+					],
+				},
+				{
+					category: "Kennis Borgen vs. Kennis Delen",
+					scenario:
+						"Een student zegt: 'Ik heb mijn hele project in een uitgebreid document op SharePoint gezet. De kennis is nu perfect overgedragen en <strong>geborgd</strong>.'",
+					question:
+						"Hoe maak je het verschil duidelijk tussen het passief opslaan van informatie (<strong>kennis delen</strong>) en het actief <strong>borgen</strong> ervan?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag: 'Welk werkproces is door jouw project nu anders? Wie zorgt ervoor dat dit nieuwe proces ook echt gevolgd wordt? Is jouw document gekoppeld aan de onboarding van nieuwe medewerkers?'",
+							isBest: true,
+							feedback:
+								"Dit legt de focus op de integratie van kennis in de routines en processen van de organisatie, wat de kern is van 'borgen'.",
+						},
+						{
+							id: 2,
+							text: "Adviseer hem om een goede mappenstructuur en trefwoorden te gebruiken zodat het document makkelijk te vinden is.",
+							isBest: false,
+							feedback:
+								"Dit verbetert de vindbaarheid van de opgeslagen kennis, maar zorgt er niet voor dat deze ook daadwerkelijk wordt geïntegreerd en gebruikt.",
+						},
+						{
+							id: 3,
+							text: "Zeg dat hij een managementsamenvatting moet schrijven, zodat mensen sneller de kern kunnen vinden.",
+							isBest: false,
+							feedback:
+								"Dit verbetert de toegankelijkheid van de gedeelde kennis, maar is nog geen borging. Een samenvatting lezen is niet hetzelfde als kennis integreren.",
+						},
+					],
+				},
+				{
+					category: "Waarden vs. Regels",
+					scenario:
+						"Een student heeft te maken met een lastige stakeholder en vraagt: 'Is er een procedure voor hoe ik met onwillige mensen moet omgaan? Wat zijn de <strong>regels</strong>?'",
+					question:
+						"Hoe verleg je haar aandacht van het volgen van <strong>regels</strong> naar het handelen vanuit professionele <strong>waarden en normen</strong>?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag: 'Laten we het niet over regels hebben, maar over principes. Welke professionele waarde – zoals integriteit, transparantie of respect – vind jij hier het belangrijkst? Hoe zou die waarde je gedrag sturen?'",
+							isBest: true,
+							feedback:
+								"Dit tilt het gesprek van een procedureel naar een principieel niveau en stimuleert de ontwikkeling van een innerlijk, professioneel kompas.",
+						},
+						{
+							id: 2,
+							text: "Zeg dat ze alle communicatie goed moet documenteren, voor het geval ze een officiële klacht moet indienen.",
+							isBest: false,
+							feedback:
+								"Dit is een defensieve, procedurele aanpak gericht op escalatie, niet op het oplossen van de situatie vanuit professionele waarden.",
+						},
+						{
+							id: 3,
+							text: "Adviseer haar om 'gewoon vriendelijk te blijven' en te hopen dat de stakeholder bijdraait.",
+							isBest: false,
+							feedback:
+								"Dit is een passieve houding en biedt geen professioneel of ethisch kader om de interactie vorm te geven.",
+						},
+					],
+				},
+				{
+					category: "Waarden vs. Regels",
+					scenario:
+						"Een student zegt: 'Uit mijn onderzoek komt een ongemakkelijke waarheid. Ik denk erover die data niet op te nemen. Er is geen <strong>regel</strong> die zegt dat alles erin moet, toch?'",
+					question:
+						"Hoe coach je de student om deze keuze niet te baseren op het ontbreken van een <strong>regel</strong>, maar op professionele <strong>waarden</strong> zoals integriteit?",
+					options: [
+						{
+							id: 1,
+							text: "Vraag: 'Los van de regels, welke reputatie wil jij als professional opbouwen? Hoe verhoudt het weglaten van data zich tot de waarde 'integriteit'? Wat is op lange termijn de waarde van een eerlijk advies?'",
+							isBest: true,
+							feedback:
+								"Dit appelleert direct aan het ontwikkelen van een professioneel-ethisch kompas en de fundamentele waarden die het handelen sturen.",
+						},
+						{
+							id: 2,
+							text: "Adviseer hem de data wel op te nemen, maar ergens achterin een bijlage te verstoppen.",
+							isBest: false,
+							feedback:
+								"Dit is een schijnoplossing die de student leert om waarden te omzeilen in plaats van ernaar te handelen.",
+						},
+						{
+							id: 3,
+							text: "Controleer het stagehandboek om te zien of er regels zijn over de volledigheid van de data in een verslag.",
+							isBest: false,
+							feedback:
+								"Dit verplaatst de discussie weer naar het niveau van regels en ontwijkt de fundamentele discussie over professionele waarden.",
+						},
+					],
+				},
+			];
 
-        sessionResults.push({
-            dilemma: dilemma,
-            chosenOptionText: chosenOptionText,
-            feedbackText: feedback,
-            userSuggestion: suggestionInput.value
-        });
-    }
+			let currentDilemmaIndex = 0;
+			let currentGameDilemmas = [];
+			let sessionResults = [];
+			let userFinalReflection = "";
+			let selectedOptionForCurrentDilemma = null;
 
-    function showFinalReflection() {
-        gameArea.style.display = 'none';
-        finalReflectionScreen.style.display = 'block';
-        finalReflectionContainer.style.display = 'block'; // Ensure the textarea container is visible
-    }
-    
-    function showEndScreen() {
-        userFinalReflection = finalReflectionInput.value;
-        finalReflectionScreen.style.display = 'none';
-        endScreen.style.display = 'block';
-    }
+			const startBtn = document.getElementById("start-btn");
+			const startScreen = document.getElementById("start-screen");
+			const gameArea = document.getElementById("game-area");
+			const progressCounter = document.getElementById("progress-counter");
+			const dilemmaCardContainer = document.getElementById(
+				"dilemma-card-container"
+			);
+			const optionsContainer = document.getElementById("options-container");
+			const feedbackContainer = document.getElementById("feedback-container");
+			const suggestionContainer = document.getElementById(
+				"suggestion-container"
+			);
+			const suggestionInput = document.getElementById("user-suggestion-input");
+			const nextBtn = document.getElementById("next-btn");
 
-    function generatePDF() {
-        const doc = new jsPDF();
-        let y = 15;
+			const finalReflectionScreen = document.getElementById(
+				"final-reflection-screen"
+			);
+			const finalReflectionContainer = document.getElementById(
+				"final-reflection-container"
+			);
+			const finalReflectionInput = document.getElementById(
+				"final-reflection-input"
+			);
+			const completeBtn = document.getElementById("complete-btn");
+			const endScreen = document.getElementById("end-screen");
+			const savePdfBtn = document.getElementById("save-pdf-btn");
+			const replayBtn = document.getElementById("replay-btn");
 
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(16);
-        doc.text('Reflectie op Dilemma Duel', 105, y, { align: 'center' });
-        y += 10;
+			function initGame() {
+				startScreen.style.display = "none";
+				endScreen.style.display = "none";
+				finalReflectionScreen.style.display = "none";
+				gameArea.style.display = "block";
 
-        sessionResults.forEach((result, index) => {
-            if (y > 250) { doc.addPage(); y = 15; }
+				currentDilemmaIndex = 0;
+				sessionResults = [];
+				userFinalReflection = "";
 
-            doc.setFontSize(12); doc.setFont('helvetica', 'bold');
-            doc.text(`Dilemma ${index + 1}: ${result.dilemma.category}`, 15, y); y += 7;
+				const urlParams = new URLSearchParams(window.location.search);
+				let requestedCount = parseInt(urlParams.get("aantal"), 10) || 3;
+				requestedCount = Math.min(requestedCount, allDilemmaData.length);
 
-            doc.setFont('helvetica', 'italic'); doc.setFontSize(10);
-            const scenarioLines = doc.splitTextToSize(`Scenario: "${result.dilemma.scenario}"`, 180);
-            doc.text(scenarioLines, 15, y); y += scenarioLines.length * 4 + 2;
+				const shuffledData = [...allDilemmaData].sort(
+					() => 0.5 - Math.random()
+				);
+				currentGameDilemmas = shuffledData.slice(0, requestedCount);
 
-            doc.setFont('helvetica', 'normal');
-            const chosenLines = doc.splitTextToSize(`Jouw gekozen aanpak: ${result.chosenOptionText.replace(/<[^>]*>?/gm, '')}`, 180);
-            doc.text(chosenLines, 15, y); y += chosenLines.length * 4 + 2;
-            
-            doc.setFont('helvetica', 'bold'); doc.text('Reflectie:', 15, y); y += 4;
-            doc.setFont('helvetica', 'normal');
-            const feedbackLines = doc.splitTextToSize(result.feedbackText, 180);
-            doc.text(feedbackLines, 15, y); y += feedbackLines.length * 4 + 2;
+				loadDilemma();
+			}
 
-            if (result.userSuggestion) {
-                doc.setFont('helvetica', 'bold'); doc.text('Jouw eigen suggestie:', 15, y); y += 4;
-                doc.setFont('helvetica', 'normal');
-                const suggestionLines = doc.splitTextToSize(result.userSuggestion, 180);
-                doc.text(suggestionLines, 15, y); y += suggestionLines.length * 4 + 2;
-            }
-            y += 8;
-        });
+			function loadDilemma() {
+				selectedOptionForCurrentDilemma = null; // Reset for the new dilemma
+				feedbackContainer.style.display = "none";
+				suggestionContainer.style.display = "none";
+				suggestionInput.value = "";
+				nextBtn.style.display = "none";
 
-        if (userFinalReflection) {
-            if (y > 220) { doc.addPage(); y = 15; }
-             doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-            doc.text('Eigen Praktijkcasus en Reflectie', 15, y); y += 10;
-            
-            doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-            const finalLines = doc.splitTextToSize(userFinalReflection, 180);
-            doc.text(finalLines, 15, y);
-        }
+				if (currentDilemmaIndex >= currentGameDilemmas.length) {
+					showFinalReflection();
+					return;
+				}
 
-        doc.save('Mijn_Reflectie_Dilemma_Duel.pdf');
-    }
+				progressCounter.textContent = `Dilemma ${currentDilemmaIndex + 1} van ${
+					currentGameDilemmas.length
+				}`;
+				const dilemma = currentGameDilemmas[currentDilemmaIndex];
 
-    startBtn.addEventListener('click', initGame);
-    nextBtn.addEventListener('click', () => {
-        saveCurrentStep();
-        currentDilemmaIndex++;
-        loadDilemma();
-    });
-    completeBtn.addEventListener('click', showEndScreen);
-    savePdfBtn.addEventListener('click', generatePDF);
-    replayBtn.addEventListener('click', initGame);
+				dilemmaCardContainer.innerHTML = `<div class="dilemma-card"><div class="category">${dilemma.category}</div><p class="scenario">"${dilemma.scenario}"</p><p class="question">${dilemma.question}</p></div>`;
+				optionsContainer.innerHTML = "";
 
-    </script>
-</body>
+				const shuffledOptions = [...dilemma.options].sort(
+					() => 0.5 - Math.random()
+				);
+				shuffledOptions.forEach((option) => {
+					const optionEl = document.createElement("div");
+					optionEl.classList.add("option");
+					optionEl.innerHTML = option.text;
+					optionEl.addEventListener("click", () =>
+						handleOptionClick(option, optionEl)
+					);
+					optionsContainer.appendChild(optionEl);
+				});
+			}
+
+			function handleOptionClick(chosenOption, chosenElement) {
+				selectedOptionForCurrentDilemma = chosenOption; // Store the selected option object
+
+				document.querySelectorAll(".option").forEach((el) => {
+					el.classList.add("disabled");
+					// Find the original option based on its text content to apply the correct class
+					const originalOption = currentGameDilemmas[
+						currentDilemmaIndex
+					].options.find((o) => o.text === el.innerHTML);
+					if (originalOption && originalOption.isBest) {
+						el.classList.add("best-practice");
+					}
+				});
+
+				chosenElement.classList.add("selected");
+
+				feedbackContainer.innerHTML = `<strong>Reflectie op deze aanpak:</strong> ${chosenOption.feedback}`;
+				feedbackContainer.style.display = "block";
+				suggestionContainer.style.display = "block";
+				nextBtn.style.display = "inline-block";
+			}
+
+			function saveCurrentStep() {
+				if (currentDilemmaIndex >= currentGameDilemmas.length) return;
+
+				const dilemma = currentGameDilemmas[currentDilemmaIndex];
+
+				// Use the stored option object, which is more reliable
+				if (selectedOptionForCurrentDilemma) {
+					sessionResults.push({
+						dilemma: dilemma,
+						chosenOptionText: selectedOptionForCurrentDilemma.text,
+						feedbackText: selectedOptionForCurrentDilemma.feedback,
+						userSuggestion: suggestionInput.value,
+					});
+				} else {
+					// Fallback in case no option was selected (should not happen with current flow)
+					sessionResults.push({
+						dilemma: dilemma,
+						chosenOptionText: "Geen antwoord gekozen",
+						feedbackText: "",
+						userSuggestion: suggestionInput.value,
+					});
+				}
+			}
+
+			function showFinalReflection() {
+				gameArea.style.display = "none";
+				finalReflectionScreen.style.display = "block";
+				finalReflectionContainer.style.display = "block";
+			}
+
+			function showEndScreen() {
+				userFinalReflection = finalReflectionInput.value;
+				finalReflectionScreen.style.display = "none";
+				endScreen.style.display = "block";
+			}
+
+			function generatePDF() {
+				const doc = new jsPDF();
+				let y = 15;
+				const removeHtml = (str) => str.replace(/<[^>]*>?/gm, "");
+
+				// Set font for the entire document
+				doc.setFont("helvetica");
+
+				doc.setFontSize(16);
+				doc.setFont(undefined, "bold");
+				doc.text("Reflectie op Dilemma Duel", 105, y, { align: "center" });
+				y += 15;
+
+				sessionResults.forEach((result, index) => {
+					if (y > 250) {
+						doc.addPage();
+						y = 15;
+					}
+
+					const category = removeHtml(result.dilemma.category);
+					const scenario = removeHtml(result.dilemma.scenario);
+					const question = removeHtml(result.dilemma.question);
+					const chosenOption = removeHtml(result.chosenOptionText);
+					const feedback = removeHtml(result.feedbackText);
+					const suggestion = removeHtml(result.userSuggestion);
+
+					doc.setFontSize(12);
+					doc.setFont(undefined, "bold");
+					doc.text(`Dilemma ${index + 1}: ${category}`, 15, y);
+					y += 7;
+
+					doc.setFont(undefined, "italic");
+					doc.setFontSize(10);
+					const scenarioLines = doc.splitTextToSize(
+						`Scenario: "${scenario}"`,
+						180
+					);
+					doc.text(scenarioLines, 15, y);
+					y += scenarioLines.length * 4 + 3;
+
+					// Add the question to the PDF
+					doc.setFont(undefined, "normal");
+					const questionLines = doc.splitTextToSize(question, 180);
+					doc.text(questionLines, 15, y);
+					y += questionLines.length * 4 + 3;
+
+					doc.setFont(undefined, "bold");
+					doc.text(`Jouw gekozen aanpak:`, 15, y);
+					y += 5;
+
+					doc.setFont(undefined, "normal");
+					const chosenLines = doc.splitTextToSize(chosenOption, 175);
+					doc.text(chosenLines, 20, y);
+					y += chosenLines.length * 4 + 3;
+
+					doc.setFont(undefined, "bold");
+					doc.text("Reflectie:", 15, y);
+					y += 5;
+					doc.setFont(undefined, "normal");
+					const feedbackLines = doc.splitTextToSize(feedback, 175);
+					doc.text(feedbackLines, 20, y);
+					y += feedbackLines.length * 4 + 3;
+
+					if (suggestion) {
+						doc.setFont(undefined, "bold");
+						doc.text("Jouw eigen suggestie:", 15, y);
+						y += 5;
+						doc.setFont(undefined, "normal");
+						const suggestionLines = doc.splitTextToSize(suggestion, 175);
+						doc.text(suggestionLines, 20, y);
+						y += suggestionLines.length * 4 + 3;
+					}
+					y += 10;
+				});
+
+				if (userFinalReflection) {
+					if (y > 220) {
+						doc.addPage();
+						y = 15;
+					}
+					doc.setFontSize(14);
+					doc.setFont(undefined, "bold");
+					doc.text("Eigen Praktijkcasus en Reflectie", 15, y);
+					y += 10;
+
+					doc.setFontSize(10);
+					doc.setFont(undefined, "normal");
+					const finalLines = doc.splitTextToSize(
+						removeHtml(userFinalReflection),
+						180
+					);
+					doc.text(finalLines, 15, y);
+				}
+
+				doc.save("Mijn_Reflectie_Dilemma_Duel.pdf");
+			}
+
+			startBtn.addEventListener("click", initGame);
+			nextBtn.addEventListener("click", () => {
+				saveCurrentStep();
+				currentDilemmaIndex++;
+				loadDilemma();
+			});
+			completeBtn.addEventListener("click", showEndScreen);
+			savePdfBtn.addEventListener("click", generatePDF);
+			replayBtn.addEventListener("click", initGame);
+		</script>
+	</body>
 </html>
