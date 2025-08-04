@@ -55,7 +55,28 @@
 
 			#instructions {
 				font-size: 1.1rem;
-				margin-bottom: 20px;
+				margin-bottom: 15px;
+			}
+
+			#button-explanations {
+				font-size: 0.9rem;
+				color: #333;
+				text-align: left;
+				margin: -10px auto 20px;
+				padding: 12px 16px;
+				border: 1px solid #e0e0e0;
+				border-radius: var(--border-radius);
+				background: #fdfdfd;
+				max-width: 95%;
+			}
+
+			#button-explanations ul {
+				margin: 8px 0 0 20px;
+				padding: 0;
+				list-style-type: "– ";
+			}
+			#button-explanations li {
+				margin-bottom: 4px;
 			}
 
 			#solved-groups-container {
@@ -278,9 +299,31 @@
 		<div id="game-wrapper">
 			<h1>Nuance Noodzaak</h1>
 			<p id="instructions">
-				Vind de 4 groepen. Elke groep bestaat uit twee termen en hun twee
-				bijbehorende definities.
+				Vind de 4 groepen van 4 kaarten. Elke groep bestaat uit twee unieke
+				termen en hun twee bijbehorende definities.
 			</p>
+
+			<div id="button-explanations">
+				<strong>Hoe werkt het?</strong>
+				<ul>
+					<li>
+						<strong>Selecteer 4 kaarten</strong> en klik op 'Controleer' om te
+						zien of ze een groep vormen.
+					</li>
+					<li>
+						<strong>Husselen:</strong> Brengt de overgebleven kaarten in een
+						andere volgorde.
+					</li>
+					<li>
+						<strong>Hint:</strong> Onthult twee termen die bij elkaar horen. Dit
+						kost één fout.
+					</li>
+					<li>
+						<strong>Speel Opnieuw:</strong> Start een nieuw spel als het huidige
+						is afgelopen.
+					</li>
+				</ul>
+			</div>
 
 			<div id="solved-groups-container"></div>
 			<div id="tiles-grid"></div>
